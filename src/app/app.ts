@@ -302,6 +302,7 @@ export class App implements OnInit {
 
     const todayIso = format(new Date(), 'yyyy-MM-dd');
     const payoutEndDate = this.periodDisplayEndDate(current);
+    const exitedEmployeeIds = this.periodsStore.getExitedEmployeeIdsForPeriod(current.id);
 
     try {
       const { closedPeriod, outOfRangeAmount } = this.periodsStore.closePeriod(current.id, payoutEndDate, todayIso);
@@ -329,8 +330,26 @@ export class App implements OnInit {
       this.periodsStore.loadFromLocalStorage();
       this.selectPeriod(id);
       this.refreshCurrentPeriodDeposits();
+
+      let removedExitedEmployees = 0;
+      for (const employeeId of exitedEmployeeIds) {
+        const employee = this.employeesStore.employees().find((item) => item.id === employeeId);
+        if (!employee || employee.active) {
+          continue;
+        }
+        this.employeesStore.deleteEmployee(employeeId);
+        removedExitedEmployees += 1;
+      }
+      if (removedExitedEmployees > 0) {
+        this.refreshEmployeeEditBuffer();
+      }
+
+      const removedInfo =
+        removedExitedEmployees > 0
+          ? ` ${removedExitedEmployees} ausgetretene(r) Mitarbeiter wurde(n) aus der Liste entfernt.`
+          : '';
       this.status.set(
-        `Auszahlung am ${format(new Date(todayIso), 'dd.MM.yyyy')} verbucht (Periodenende: ${format(new Date(payoutEndDate), 'dd.MM.yyyy')}). Neue Periode ab ${format(new Date(nextStart), 'dd.MM.yyyy')} erstellt.`,
+        `Auszahlung am ${format(new Date(todayIso), 'dd.MM.yyyy')} verbucht (Periodenende: ${format(new Date(payoutEndDate), 'dd.MM.yyyy')}). Neue Periode ab ${format(new Date(nextStart), 'dd.MM.yyyy')} erstellt.${removedInfo}`,
       );
     } catch (error) {
       this.status.set(error instanceof Error ? error.message : 'Auszahlung fehlgeschlagen.');

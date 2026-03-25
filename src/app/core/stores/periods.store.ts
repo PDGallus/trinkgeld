@@ -254,8 +254,9 @@ export class PeriodsStore {
     }
 
     const nowIso = new Date().toISOString();
+    const encodedEmployeeId = encodeURIComponent(employeeId);
     const payoutLog: TipDeposit = {
-      id: `${periodId}-employee-exit-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      id: `${periodId}-employee-exit-${encodedEmployeeId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       periodId,
       amount: roundCurrency(-payoutAmount),
       date,
@@ -274,6 +275,35 @@ export class PeriodsStore {
     const recalculated = this.recalculatePeriodForEndDate(periodSeed, effectiveEndDate);
     this.periods.set(this.periodsRepository.upsert({ ...recalculated, updatedAt: nowIso }));
     return payoutAmount;
+  }
+
+  getExitedEmployeeIdsForPeriod(periodId: string): string[] {
+    const prefix = `${periodId}-employee-exit-`;
+    const ids = new Set<string>();
+    for (const deposit of this.depositsRepository.getByPeriodId(periodId)) {
+      if (!deposit.id.startsWith(prefix)) {
+        continue;
+      }
+
+      const suffix = deposit.id.slice(prefix.length);
+      const parts = suffix.split('-');
+      if (parts.length < 3) {
+        continue;
+      }
+
+      const encodedEmployeeId = parts.slice(0, -2).join('-');
+      if (!encodedEmployeeId) {
+        continue;
+      }
+
+      try {
+        ids.add(decodeURIComponent(encodedEmployeeId));
+      } catch {
+        ids.add(encodedEmployeeId);
+      }
+    }
+
+    return [...ids];
   }
 
   removeDepositFromPeriod(periodId: string, depositId: string): void {
