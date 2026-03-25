@@ -1,0 +1,82 @@
+<section class="panel">
+  <h2>Periodendetail</h2>
+  <div class="detail-grid">
+    <label>
+      Inkl. Übertrag
+      <input
+        type="number"
+        min="0"
+        step="0.01"
+        [ngModel]="period().carryOverIncluded"
+        (ngModelChange)="onHeaderChange('carryOverIncluded', $event)"
+      />
+    </label>
+    <label>
+      Startdatum
+      <input
+        type="date"
+        [ngModel]="period().startDate"
+        (ngModelChange)="onHeaderChange('startDate', $event)"
+      />
+    </label>
+    <label>
+      Enddatum
+      <input
+        type="date"
+        [ngModel]="period().endDate ?? ''"
+        (ngModelChange)="onHeaderChange('endDate', $event)"
+      />
+    </label>
+    <label>
+      Wochen (automatisch)
+      <strong>{{ period().weeks }}</strong>
+    </label>
+    <label>
+      Tip pro Woche
+      <strong>{{ period().tipPerWeek | currency : 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}</strong>
+    </label>
+    <label>
+      Kontrollsumme
+      <strong>{{ period().controlSum | currency : 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}</strong>
+    </label>
+    <label>
+      Restbetrag
+      <strong>{{ period().remainder | currency : 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}</strong>
+    </label>
+    <label>
+      Total Adjusted Factor
+      <strong>{{ period().totalAdjustedFactor }}</strong>
+    </label>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Mitarbeiter</th>
+        <th>Krank</th>
+        <th class="amount-cell">Betrag</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (share of shares(); track share.id) {
+        <tr>
+          <td>{{ employeeName(share.employeeId) }}</td>
+          <td>
+            <input
+              type="number"
+              min="0"
+              placeholder="0 oder >= 6"
+              [ngModel]="share.sickUnits"
+              (ngModelChange)="onShareSickUnitsChange(share.employeeId, $event)"
+            />
+          </td>
+          <td class="amount-cell">{{ share.amount | currency : 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  @if (period().payoutDate === null) {
+    <button type="button" (click)="payoutAndCreateNextPeriod.emit()">Auszahlen & nächste Periode erstellen</button>
+  }
+</section>

@@ -1,304 +1,56 @@
 <main class="app-shell">
-  <header class="hero">
-    <h1>{{ title() }} Prototyp</h1>
-    <p>Lokale Persistenz, Live-Berechnung je Periode und Backup-Import/Export.</p>
-    <div class="backup-actions">
-      <button type="button" (click)="exportBackup()">Daten exportieren</button>
-      <label class="import-label">
-        Daten importieren
-        <input type="file" accept="application/json" (change)="importBackup($event)" />
-      </label>
-    </div>
-    @if (status()) {
-      <p class="status">{{ status() }}</p>
-    }
-  </header>
+  <app-header-bar [title]="title()" [status]="status()" (exportBackup)="exportBackup()" (importBackup)="importBackup($event)" />
 
   @if (periodsStore.periods().length === 0) {
-    <section class="panel">
-      <h2>Neue Auszahlungsperiode</h2>
-      <form class="inline-form" (submit)="$event.preventDefault(); createPeriod()">
-        <div class="field">
-          <label for="periodStartDate">Startdatum</label>
-          <input id="periodStartDate" type="date" [(ngModel)]="newPeriod.startDate" name="periodStartDate" />
-          <small class="field-hint">Startdatum der initialen Periode.</small>
-          @if (periodFieldErrors().startDate) {
-            <small class="field-error">{{ periodFieldErrors().startDate }}</small>
-          }
-        </div>
-        <button type="button" (click)="createPeriod()">Initiale Periode erstellen</button>
-      </form>
-    </section>
+    <app-create-period
+      [startDate]="newPeriod.startDate"
+      [startDateError]="periodFieldErrors().startDate"
+      (startDateChange)="onNewPeriodStartDateChange($event)"
+      (createPeriod)="createPeriod()"
+    />
   }
 
-  <section class="panel">
-    <h2>Auszahlungsperioden</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Zeitraum</th>
-          <th>Tip/Woche</th>
-          <th>Trend</th>
-          <th>Kontrollsumme</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (period of periodsStore.sortedPeriods(); track period.id) {
-          <tr (click)="selectPeriod(period.id)" [class.selected]="selectedPeriodId() === period.id">
-            <td>{{ period.startDate | date : 'dd.MM.yyyy' : undefined : 'de-DE' }} - {{ periodDisplayEndDate(period) | date : 'dd.MM.yyyy' : undefined : 'de-DE' }} ({{ period.weeks }}W)</td>
-            <td>{{ period.tipPerWeek | currency : 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}</td>
-            <td>{{ trendSymbol(period.trendIcon) }} {{ period.trendPercent }}%</td>
-            <td>{{ period.controlSum | currency : 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </section>
+  <app-periods-table
+    [periods]="periodsStore.sortedPeriods()"
+    [selectedPeriodId]="selectedPeriodId()"
+    (selectPeriod)="selectPeriod($event)"
+  />
 
-  <section class="panel">
-    <h2>Trinkgeldkasse</h2>
+  <app-cashbox-panel
+    [currentPeriod]="periodsStore.currentPeriod()"
+    [deposits]="currentPeriodDeposits()"
+    [cashFieldErrors]="cashFieldErrors()"
+    [cashDepositAmount]="cashDepositForm.amount"
+    [cashDepositDate]="cashDepositForm.date"
+    (cashDepositAmountChange)="onCashDepositAmountChange($event)"
+    (cashDepositDateChange)="onCashDepositDateChange($event)"
+    (deposit)="depositToCurrentPeriod()"
+    (deleteDeposit)="deleteDepositFromCurrentPeriod($event)"
+  />
 
-    @if (periodsStore.currentPeriod(); as currentPeriod) {
-      <div class="cashbox-summary" (click)="toggleCashExpanded()">
-        <div>
-          <strong>Offene Periode:</strong>
-          {{ currentPeriod.startDate | date : 'dd.MM.yyyy' : undefined : 'de-DE' }} - {{ periodDisplayEndDate(currentPeriod) | date : 'dd.MM.yyyy' : undefined : 'de-DE' }}
-        </div>
-        <div>
-          <strong>Gesamt im Topf:</strong>
-          {{ currentPeriod.carryOverIncluded | currency : 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}
-        </div>
-        <button type="button" (click)="openCashExpandedFromCta($event)">Einzahlen</button>
-      </div>
-
-      @if (cashExpanded()) {
-        <div class="cashbox-expanded">
-          <div class="inline-form cashbox-form">
-            <div class="field">
-              <label for="cashDepositAmount">Einzahlungsbetrag</label>
-              <input
-                #cashDepositAmountInput
-                id="cashDepositAmount"
-                type="number"
-                min="0"
-                step="0.01"
-                [(ngModel)]="cashDepositForm.amount"
-                name="cashDepositAmount"
-              />
-              <small class="field-hint">Betrag, der jetzt in den Topf geht.</small>
-              @if (cashFieldErrors().amount) {
-                <small class="field-error">{{ cashFieldErrors().amount }}</small>
-              }
-            </div>
-
-            <div class="field">
-              <label for="cashDepositDate">Datum</label>
-              <input id="cashDepositDate" type="date" [(ngModel)]="cashDepositForm.date" name="cashDepositDate" />
-              <small class="field-hint">Wann wurde eingezahlt?</small>
-              @if (cashFieldErrors().date) {
-                <small class="field-error">{{ cashFieldErrors().date }}</small>
-              }
-            </div>
-
-            <button type="button" (click)="depositToCurrentPeriod()">Einzahlung buchen</button>
-          </div>
-
-          <table>
-            <thead>
-              <tr>
-                <th>Datum</th>
-                <th>Betrag</th>
-                <th>Aktion</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (deposit of currentPeriodDeposits(); track deposit.id) {
-                <tr>
-                  <td>{{ deposit.date | date : 'dd.MM.yyyy' : undefined : 'de-DE' }}</td>
-                  <td>{{ deposit.amount | currency : 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}</td>
-                  <td>
-                    @if (deposit.amount > 0) {
-                      <button type="button" (click)="deleteDepositFromCurrentPeriod(deposit.id)">Löschen</button>
-                    } @else {
-                      <span>{{ depositLogLabel(deposit) }}</span>
-                    }
-                  </td>
-                </tr>
-              }
-              @if (currentPeriodDeposits().length === 0) {
-                <tr>
-                  <td colspan="3">Noch keine Einzahlungen vorhanden.</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-    } @else {
-      <p>Keine offene Periode vorhanden. Erstelle zuerst eine neue Auszahlungsperiode.</p>
-    }
-  </section>
-
-  <section class="panel">
-    <h2>Mitarbeiter</h2>
-    <form class="inline-form" (submit)="$event.preventDefault(); addEmployee()">
-      <div class="field">
-        <label for="employeeName">Name</label>
-        <input id="employeeName" type="text" placeholder="Name" [(ngModel)]="newEmployee.name" name="employeeName" />
-        <small class="field-hint">Vollständiger Anzeigename des Mitarbeiters.</small>
-        @if (employeeFieldErrors().name) {
-          <small class="field-error">{{ employeeFieldErrors().name }}</small>
-        }
-      </div>
-      <div class="field">
-        <label for="employeeHours">Wochenstunden</label>
-        <input id="employeeHours" type="number" min="0" step="0.5" placeholder="Wochenstunden" [(ngModel)]="newEmployee.weeklyHours" name="employeeHours" />
-        <small class="field-hint">Vertragliche Stunden pro Woche (Basis für den Faktor).</small>
-        @if (employeeFieldErrors().weeklyHours) {
-          <small class="field-error">{{ employeeFieldErrors().weeklyHours }}</small>
-        }
-      </div>
-      <div class="field">
-        <label for="employeeFactorAuto">Faktor (automatisch)</label>
-        <input id="employeeFactorAuto" type="number" [ngModel]="newEmployeeAutoFactor()" name="employeeFactorAuto" readonly />
-        <small class="field-hint">Wird automatisch berechnet: <code>Wochenstunden / 40</code>.</small>
-      </div>
-      <button type="submit">Hinzufügen</button>
-    </form>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Stunden</th>
-          <th>Faktor</th>
-          <th>Status</th>
-          <th>Aktion</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (employee of employeesStore.employees(); track employee.id) {
-          <tr>
-            <td>
-              <input
-                type="text"
-                [ngModel]="employeeEditById()[employee.id]?.name ?? employee.name"
-                (ngModelChange)="updateEmployeeDraft(employee.id, { name: $event })"
-              />
-            </td>
-            <td>
-              <input
-                type="number"
-                min="0"
-                step="0.5"
-                [ngModel]="employeeEditById()[employee.id]?.weeklyHours ?? employee.weeklyHours"
-                (ngModelChange)="updateEmployeeDraft(employee.id, { weeklyHours: $event })"
-              />
-            </td>
-            <td>{{ employee.baseFactor }}</td>
-            <td>
-              <select
-                [ngModel]="(employeeEditById()[employee.id]?.active ?? employee.active) ? 'active' : 'inactive'"
-                (ngModelChange)="updateEmployeeDraft(employee.id, { active: $event === 'active' })"
-              >
-                <option value="active">Aktiv</option>
-                <option value="inactive">Inaktiv</option>
-              </select>
-            </td>
-            <td class="actions-cell">
-              <button type="button" (click)="saveEmployeeChanges(employee.id)">Speichern</button>
-              @if (employee.active) {
-                <button type="button" (click)="payoutAndDeactivateEmployee(employee.id)">Austritt auszahlen</button>
-              }
-              <button type="button" (click)="deleteEmployee(employee.id)">Löschen</button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </section>
+  <app-employees-panel
+    [employees]="employeesStore.employees()"
+    [employeeEditById]="employeeEditById()"
+    [newEmployeeName]="newEmployee.name"
+    [newEmployeeWeeklyHours]="newEmployee.weeklyHours"
+    [employeeFieldErrors]="employeeFieldErrors()"
+    (newEmployeeNameChange)="onNewEmployeeNameChange($event)"
+    (newEmployeeWeeklyHoursChange)="onNewEmployeeWeeklyHoursChange($event)"
+    (addEmployee)="addEmployee()"
+    (updateEmployeeDraft)="onEmployeeDraftUpdate($event)"
+    (saveEmployeeChanges)="saveEmployeeChanges($event)"
+    (payoutAndDeactivateEmployee)="payoutAndDeactivateEmployee($event)"
+    (deleteEmployee)="deleteEmployee($event)"
+  />
 
   @if (periodDetailStore.period(); as period) {
-    <section class="panel">
-      <h2>Periodendetail</h2>
-      <div class="detail-grid">
-        <label>
-          Inkl. Übertrag
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            [ngModel]="period.carryOverIncluded"
-            (ngModelChange)="periodDetailStore.changeHeader('carryOverIncluded', $event)"
-          />
-        </label>
-        <label>
-          Startdatum
-          <input
-            type="date"
-            [ngModel]="period.startDate"
-            (ngModelChange)="periodDetailStore.changeHeader('startDate', $event)"
-          />
-        </label>
-        <label>
-          Enddatum
-          <input
-            type="date"
-            [ngModel]="period.endDate ?? ''"
-            (ngModelChange)="periodDetailStore.changeHeader('endDate', $event)"
-          />
-        </label>
-        <label>
-          Wochen (automatisch)
-          <strong>{{ period.weeks }}</strong>
-        </label>
-        <label>
-          Tip pro Woche
-          <strong>{{ period.tipPerWeek | currency : 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}</strong>
-        </label>
-        <label>
-          Kontrollsumme
-          <strong>{{ period.controlSum | currency : 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}</strong>
-        </label>
-        <label>
-          Restbetrag
-          <strong>{{ period.remainder | currency : 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}</strong>
-        </label>
-        <label>
-          Total Adjusted Factor
-          <strong>{{ period.totalAdjustedFactor }}</strong>
-        </label>
-      </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Mitarbeiter</th>
-            <th>Krank</th>
-            <th class="amount-cell">Betrag</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (share of periodDetailStore.shares(); track share.id) {
-            <tr>
-              <td>{{ employeeName(share.employeeId) }}</td>
-              <td>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="0 oder >= 6"
-                  [ngModel]="share.sickUnits"
-                  (ngModelChange)="onShareSickUnitsChange(share.employeeId, $event)"
-                />
-              </td>
-              <td class="amount-cell">{{ share.amount | currency : 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-      @if (period.payoutDate === null) {
-        <button type="button" (click)="payoutAndCreateNextPeriod()">Auszahlen & nächste Periode erstellen</button>
-      }
-    </section>
+    <app-period-detail-panel
+      [period]="period"
+      [shares]="periodDetailStore.shares()"
+      [employeesById]="employeesById()"
+      (changeHeader)="onPeriodHeaderChange($event)"
+      (shareSickUnitsChange)="onShareSickUnitsChange($event.employeeId, $event.value)"
+      (payoutAndCreateNextPeriod)="payoutAndCreateNextPeriod()"
+    />
   }
 </main>

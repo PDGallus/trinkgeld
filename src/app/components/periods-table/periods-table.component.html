@@ -1,0 +1,23 @@
+<section class="panel">
+  <h2>Auszahlungsperioden</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Zeitraum</th>
+        <th>Tip/Woche</th>
+        <th>Trend</th>
+        <th>Kontrollsumme</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (period of periods(); track period.id) {
+        <tr (click)="onSelectPeriod(period.id)" [class.selected]="selectedPeriodId() === period.id">
+          <td>{{ period.startDate | date : 'dd.MM.yyyy' : undefined : 'de-DE' }} - {{ periodDisplayEndDate(period) | date : 'dd.MM.yyyy' : undefined : 'de-DE' }} ({{ period.weeks }}W)</td>
+          <td>{{ period.tipPerWeek | currency : 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}</td>
+          <td>{{ trendIcon(period.trendIcon) }} {{ period.trendPercent }}%</td>
+          <td>{{ period.controlSum | currency : 'EUR' : 'symbol' : '1.2-2' : 'de-DE' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</section>

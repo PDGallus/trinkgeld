@@ -1,0 +1,82 @@
+<section class="panel">
+  <h2>Mitarbeiter</h2>
+  <form class="inline-form" (submit)="$event.preventDefault(); addEmployee.emit()">
+    <div class="field">
+      <label for="employeeName">Name</label>
+      <input id="employeeName" type="text" placeholder="Name" [ngModel]="newEmployeeName()" name="employeeName" (ngModelChange)="onNewEmployeeNameChange($event)" />
+      <small class="field-hint">Vollständiger Anzeigename des Mitarbeiters.</small>
+      @if (employeeFieldErrors().name) {
+        <small class="field-error">{{ employeeFieldErrors().name }}</small>
+      }
+    </div>
+    <div class="field">
+      <label for="employeeHours">Wochenstunden</label>
+      <input
+        id="employeeHours"
+        type="number"
+        min="0"
+        step="0.5"
+        placeholder="Wochenstunden"
+        [ngModel]="newEmployeeWeeklyHours()"
+        name="employeeHours"
+        (ngModelChange)="onNewEmployeeWeeklyHoursChange($event)"
+      />
+      <small class="field-hint">Vertragliche Stunden pro Woche (Basis für den Faktor).</small>
+      @if (employeeFieldErrors().weeklyHours) {
+        <small class="field-error">{{ employeeFieldErrors().weeklyHours }}</small>
+      }
+    </div>
+    <button type="submit">Hinzufügen</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Stunden</th>
+        <th>Faktor</th>
+        <th>Status</th>
+        <th>Aktion</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (employee of employees(); track employee.id) {
+        <tr>
+          <td>
+            <input
+              type="text"
+              [ngModel]="employeeEditById()[employee.id]?.name ?? employee.name"
+              (ngModelChange)="onUpdateEmployeeDraft(employee.id, { name: $event })"
+            />
+          </td>
+          <td>
+            <input
+              type="number"
+              min="0"
+              step="0.5"
+              [ngModel]="employeeEditById()[employee.id]?.weeklyHours ?? employee.weeklyHours"
+              (ngModelChange)="onUpdateEmployeeDraft(employee.id, { weeklyHours: $event })"
+            />
+          </td>
+          <td>{{ employee.baseFactor }}</td>
+          <td>
+            <select
+              [ngModel]="(employeeEditById()[employee.id]?.active ?? employee.active) ? 'active' : 'inactive'"
+              (ngModelChange)="onUpdateEmployeeDraft(employee.id, { active: $event === 'active' })"
+            >
+              <option value="active">Aktiv</option>
+              <option value="inactive">Inaktiv</option>
+            </select>
+          </td>
+          <td class="actions-cell">
+            <button type="button" (click)="saveEmployeeChanges.emit(employee.id)">Speichern</button>
+            @if (employee.active) {
+              <button type="button" (click)="payoutAndDeactivateEmployee.emit(employee.id)">Austritt auszahlen</button>
+            }
+            <button type="button" (click)="deleteEmployee.emit(employee.id)">Löschen</button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</section>

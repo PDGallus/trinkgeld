@@ -1,0 +1,14 @@
+<header class="hero">
+  <h1>{{ title() }} Prototyp</h1>
+  <p>Lokale Persistenz, Live-Berechnung je Periode und Backup-Import/Export.</p>
+  <div class="backup-actions">
+    <button type="button" (click)="exportBackup.emit()">Daten exportieren</button>
+    <label class="import-label">
+      Daten importieren
+      <input type="file" accept="application/json" (change)="onFileChange($event)" />
+    </label>
+  </div>
+  @if (status()) {
+    <p class="status">{{ status() }}</p>
+  }
+</header>

@@ -1,0 +1,14 @@
+<section class="panel">
+  <h2>Neue Auszahlungsperiode</h2>
+  <form class="inline-form" (submit)="$event.preventDefault(); createPeriod.emit()">
+    <div class="field">
+      <label for="periodStartDate">Startdatum</label>
+      <input id="periodStartDate" type="date" [ngModel]="startDate()" name="periodStartDate" (ngModelChange)="onStartDateChange($event)" />
+      <small class="field-hint">Startdatum der initialen Periode.</small>
+      @if (startDateError()) {
+        <small class="field-error">{{ startDateError() }}</small>
+      }
+    </div>
+    <button type="button" (click)="createPeriod.emit()">Initiale Periode erstellen</button>
+  </form>
+</section>

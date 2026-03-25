@@ -1,18 +1,32 @@
-import { addDays, format } from 'date-fns';
-import { CommonModule, CurrencyPipe } from '@angular/common';
-import { Component, computed, ElementRef, OnInit, signal, ViewChild } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { BackupService } from './core/services/backup.service';
-import { EmployeeId, PayoutPeriod, TipDeposit } from './core/models';
-import { TipDepositsLocalStorageRepository } from './core/repositories/tip-deposits-local-storage.repository';
-import { EmployeesStore } from './core/stores/employees.store';
-import { PeriodDetailStore } from './core/stores/period-detail.store';
-import { PeriodsStore } from './core/stores/periods.store';
-import { calculateBaseFactorFromHours, sanitizeNumber, trendSymbol } from './core/utils/period-calculation';
+import {addDays, format} from 'date-fns';
+import {Component, computed, OnInit, signal} from '@angular/core';
+import {BackupService} from './core/services/backup.service';
+import {PayoutPeriod, TipDeposit} from './core/models';
+import {TipDepositsLocalStorageRepository} from './core/repositories/tip-deposits-local-storage.repository';
+import {EmployeesStore} from './core/stores/employees.store';
+import {PeriodDetailStore} from './core/stores/period-detail.store';
+import {PeriodsStore} from './core/stores/periods.store';
+import {calculateBaseFactorFromHours, sanitizeNumber} from './core/utils/period-calculation';
+import {HeaderBarComponent} from './components/header-bar/header-bar.component';
+import {CreatePeriodComponent} from './components/create-period/create-period.component';
+import {PeriodsTableComponent} from './components/periods-table/periods-table.component';
+import {CashboxPanelComponent} from './components/cashbox-panel/cashbox-panel.component';
+import {EmployeeDraftUpdate, EmployeesPanelComponent} from './components/employees-panel/employees-panel.component';
+import {
+  PeriodDetailPanelComponent,
+  PeriodHeaderChangeEvent
+} from './components/period-detail-panel/period-detail-panel.component';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule, CurrencyPipe],
+  imports: [
+    HeaderBarComponent,
+    CreatePeriodComponent,
+    PeriodsTableComponent,
+    CashboxPanelComponent,
+    EmployeesPanelComponent,
+    PeriodDetailPanelComponent,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
@@ -24,11 +38,9 @@ export class App implements OnInit {
   readonly employeeFieldErrors = signal<Partial<Record<'name' | 'weeklyHours', string>>>({});
   readonly periodFieldErrors = signal<Partial<Record<'startDate', string>>>({});
 
-  readonly cashExpanded = signal(false);
   readonly cashFieldErrors = signal<Partial<Record<'amount' | 'date', string>>>({});
   readonly currentPeriodDeposits = signal<TipDeposit[]>([]);
   readonly employeeEditById = signal<Record<string, { name: string; weeklyHours: number; active: boolean }>>({});
-  @ViewChild('cashDepositAmountInput') cashDepositAmountInput?: ElementRef<HTMLInputElement>;
 
   readonly newEmployee = {
     name: '',
@@ -45,7 +57,13 @@ export class App implements OnInit {
   };
 
   readonly activeEmployees = computed(() => this.employeesStore.employees().filter((employee) => employee.active));
-  readonly newEmployeeAutoFactor = computed(() => calculateBaseFactorFromHours(this.newEmployee.weeklyHours, 40));
+  readonly employeesById = computed(() => {
+    const map: Record<string, string> = {};
+    for (const employee of this.employeesStore.employees()) {
+      map[employee.id] = employee.name;
+    }
+    return map;
+  });
 
   constructor(
     readonly employeesStore: EmployeesStore,
@@ -105,6 +123,10 @@ export class App implements OnInit {
         ...patch,
       },
     }));
+  }
+
+  onEmployeeDraftUpdate(event: EmployeeDraftUpdate): void {
+    this.updateEmployeeDraft(event.id, event.patch);
   }
 
   saveEmployeeChanges(id: string): void {
@@ -172,25 +194,6 @@ export class App implements OnInit {
     }
   }
 
-  employeeName(employeeId: EmployeeId): string {
-    const employee = this.employeesStore.employees().find((item) => item.id === employeeId);
-    return employee?.name ?? employeeId;
-  }
-
-  trendSymbol(icon: 'up' | 'down' | 'steady'): string {
-    return trendSymbol(icon);
-  }
-
-  toggleCashExpanded(): void {
-    this.cashExpanded.update((value) => !value);
-  }
-
-  openCashExpandedFromCta(event: Event): void {
-    event.stopPropagation();
-    this.cashExpanded.set(true);
-    setTimeout(() => this.cashDepositAmountInput?.nativeElement.focus(), 0);
-  }
-
   refreshCurrentPeriodDeposits(): void {
     const current = this.periodsStore.currentPeriod();
     if (!current) {
@@ -206,6 +209,14 @@ export class App implements OnInit {
       return period.endDate;
     }
     return new Date(todayIso).getTime() < new Date(period.startDate).getTime() ? period.startDate : todayIso;
+  }
+
+  onCashDepositAmountChange(value: number): void {
+    this.cashDepositForm.amount = value;
+  }
+
+  onCashDepositDateChange(value: string): void {
+    this.cashDepositForm.date = value;
   }
 
   depositToCurrentPeriod(): void {
@@ -260,19 +271,6 @@ export class App implements OnInit {
     } catch (error) {
       this.status.set(error instanceof Error ? error.message : 'Einzahlung konnte nicht gelöscht werden.');
     }
-  }
-
-  depositLogLabel(deposit: TipDeposit): string {
-    if (deposit.amount > 0) {
-      return '';
-    }
-    if (deposit.id.includes('-employee-exit-')) {
-      return 'Austrittsauszahlung';
-    }
-    if (deposit.id.includes('-delete-')) {
-      return 'Einzahlung storniert';
-    }
-    return 'Korrekturbuchung';
   }
 
   private generateEmployeeId(): string {
@@ -339,6 +337,14 @@ export class App implements OnInit {
     }
   }
 
+  onNewEmployeeNameChange(value: string): void {
+    this.newEmployee.name = value;
+  }
+
+  onNewEmployeeWeeklyHoursChange(value: number): void {
+    this.newEmployee.weeklyHours = value;
+  }
+
   addEmployee(): void {
     const fieldErrors: Partial<Record<'name' | 'weeklyHours', string>> = {};
     const name = this.newEmployee.name.trim();
@@ -368,6 +374,10 @@ export class App implements OnInit {
     this.newEmployee.name = '';
     this.newEmployee.weeklyHours = 40;
     this.status.set('Mitarbeiter hinzugefügt.');
+  }
+
+  onNewPeriodStartDateChange(value: string): void {
+    this.newPeriod.startDate = value;
   }
 
   createPeriod(): void {
@@ -426,6 +436,10 @@ export class App implements OnInit {
       return;
     }
     this.periodDetailStore.updateShare(employeeId, { sickUnits });
+  }
+
+  onPeriodHeaderChange(event: PeriodHeaderChangeEvent): void {
+    this.periodDetailStore.changeHeader(event.field, event.value);
   }
 
   exportBackup(): void {
