@@ -2,7 +2,7 @@
   <h2>Trinkgeldkasse</h2>
 
   @if (currentPeriod(); as period) {
-    <div class="cashbox-summary" (click)="toggleExpanded()">
+    <div class="cashbox-summary" (click)="toggleExpanded()" (keydown)="toggleExpanded()">
       <div>
         <strong>Offene Periode:</strong>
         {{ period.startDate | date : 'dd.MM.yyyy' : undefined : 'de-DE' }} - {{ periodDisplayEndDate(period) | date : 'dd.MM.yyyy' : undefined : 'de-DE' }}

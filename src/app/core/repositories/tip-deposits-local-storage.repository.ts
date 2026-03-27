@@ -13,7 +13,7 @@ export class TipDepositsLocalStorageRepository {
     const raw = this.storage.getItem<LegacyTipDeposit[]>(STORAGE_KEYS.deposits) ?? [];
     return raw
       .map((deposit) => {
-        const amount = typeof deposit.amount === 'number' ? deposit.amount : Number(deposit.amount);
+        const amount = deposit.amount;
         return {
           ...deposit,
           amount: Number.isFinite(amount) ? amount : 0,
