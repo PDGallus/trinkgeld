@@ -1,21 +1,23 @@
-import {addDays, format} from 'date-fns';
-import {Component, computed, OnInit, signal} from '@angular/core';
-import {BackupService} from './core/services/backup.service';
-import {PayoutPeriod, TipDeposit} from './core/models';
-import {TipDepositsLocalStorageRepository} from './core/repositories/tip-deposits-local-storage.repository';
-import {EmployeesStore} from './core/stores/employees.store';
-import {PeriodDetailStore} from './core/stores/period-detail.store';
-import {PeriodsStore} from './core/stores/periods.store';
-import {calculateBaseFactorFromHours, sanitizeNumber} from './core/utils/period-calculation';
-import {HeaderBarComponent} from './components/header-bar/header-bar.component';
-import {CreatePeriodComponent} from './components/create-period/create-period.component';
-import {PeriodsTableComponent} from './components/periods-table/periods-table.component';
-import {CashboxPanelComponent} from './components/cashbox-panel/cashbox-panel.component';
-import {EmployeeDraftUpdate, EmployeesPanelComponent} from './components/employees-panel/employees-panel.component';
+import { addDays, format } from 'date-fns';
+import { Component, computed, OnInit, signal } from '@angular/core';
+import { Router, NavigationEnd, RouterOutlet } from '@angular/router';
+import { BackupService } from './core/services/backup.service';
+import { PayoutPeriod, TipDeposit } from './core/models';
+import { TipDepositsLocalStorageRepository } from './core/repositories/tip-deposits-local-storage.repository';
+import { EmployeesStore } from './core/stores/employees.store';
+import { PeriodDetailStore } from './core/stores/period-detail.store';
+import { PeriodsStore } from './core/stores/periods.store';
+import { calculateBaseFactorFromHours, sanitizeNumber } from './core/utils/period-calculation';
+import { HeaderBarComponent } from './components/header-bar/header-bar.component';
+import { CreatePeriodComponent } from './components/create-period/create-period.component';
+import { PeriodsTableComponent } from './components/periods-table/periods-table.component';
+import { CashboxPanelComponent } from './components/cashbox-panel/cashbox-panel.component';
+import { EmployeeDraftUpdate, EmployeesPanelComponent } from './components/employees-panel/employees-panel.component';
 import {
   PeriodDetailPanelComponent,
   PeriodHeaderChangeEvent
 } from './components/period-detail-panel/period-detail-panel.component';
+import { BottomNavComponent } from './components/bottom-nav/bottom-nav.component';
 
 @Component({
   selector: 'app-root',
@@ -26,6 +28,8 @@ import {
     CashboxPanelComponent,
     EmployeesPanelComponent,
     PeriodDetailPanelComponent,
+    BottomNavComponent,
+    RouterOutlet,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
@@ -41,6 +45,7 @@ export class App implements OnInit {
   readonly cashFieldErrors = signal<Partial<Record<'amount' | 'date', string>>>({});
   readonly currentPeriodDeposits = signal<TipDeposit[]>([]);
   readonly employeeEditById = signal<Record<string, { name: string; weeklyHours: number; active: boolean }>>({});
+  readonly isNewDesignRoute = signal(false);
 
   readonly newEmployee = {
     name: '',
@@ -71,7 +76,14 @@ export class App implements OnInit {
     readonly periodDetailStore: PeriodDetailStore,
     private readonly depositsRepository: TipDepositsLocalStorageRepository,
     private readonly backupService: BackupService,
-  ) {}
+    private readonly router: Router,
+  ) {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        this.isNewDesignRoute.set(this.router.url.includes('/team') || this.router.url.includes('/dashboard'));
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.employeesStore.loadFromLocalStorage();
@@ -273,13 +285,6 @@ export class App implements OnInit {
     }
   }
 
-  private generateEmployeeId(): string {
-    if (globalThis.crypto?.randomUUID) {
-      return globalThis.crypto.randomUUID();
-    }
-    return `emp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-  }
-
   private generatePeriodId(): string {
     if (globalThis.crypto?.randomUUID) {
       return globalThis.crypto.randomUUID();
@@ -382,11 +387,7 @@ export class App implements OnInit {
       return;
     }
 
-    let id = this.generateEmployeeId();
-    while (this.employeesStore.employees().some((employee) => employee.id === id)) {
-      id = this.generateEmployeeId();
-    }
-    this.employeesStore.addEmployee({ id, name, weeklyHours, baseFactor });
+    this.employeesStore.addEmployee({ name, weeklyHours, baseFactor });
     this.refreshEmployeeEditBuffer();
     this.employeeFieldErrors.set({});
 
@@ -450,10 +451,6 @@ export class App implements OnInit {
 
   onShareSickUnitsChange(employeeId: string, value: unknown): void {
     const sickUnits = Math.max(0, sanitizeNumber(value, 0));
-    if (sickUnits > 0 && sickUnits < 6) {
-      this.status.set('Krank darf nur 0 oder mindestens 6 sein.');
-      return;
-    }
     this.periodDetailStore.updateShare(employeeId, { sickUnits });
   }
 

@@ -7,7 +7,7 @@ import { EmployeesLocalStorageRepository } from '../repositories/employees-local
 export class EmployeesStore {
   readonly employees = signal<Employee[]>([]);
 
-  constructor(private readonly repository: EmployeesLocalStorageRepository) {}
+  constructor(private readonly repository: EmployeesLocalStorageRepository) { }
 
   loadFromLocalStorage(): void {
     const all = this.repository.getAll();
@@ -48,10 +48,10 @@ export class EmployeesStore {
     return normalized;
   }
 
-  addEmployee(dto: { id: string; name: string; weeklyHours: number; baseFactor: number }): void {
+  addEmployee(dto: { name: string; weeklyHours: number; baseFactor: number }): void {
     const now = new Date().toISOString();
     const employee: Employee = {
-      id: dto.id,
+      id: this.generateId(),
       name: dto.name,
       weeklyHours: dto.weeklyHours,
       baseFactor: dto.baseFactor,
@@ -83,11 +83,38 @@ export class EmployeesStore {
     this.employees.set(this.repository.deactivate(id));
   }
 
-  setEmployeeActive(id: string, active: boolean): void {
-    this.employees.set(this.repository.setActive(id, active));
+  setEmployeeActive(id: string, active: boolean, inactiveDate?: string): void {
+    this.employees.set(this.repository.setActive(id, active, inactiveDate));
+  }
+
+  setEmployeeResigned(id: string, inactiveDate: string): void {
+    const current = this.employees().find((e) => e.id === id);
+    if (!current) return;
+    
+    const updated: Employee = {
+      ...current,
+      active: false,
+      inactiveDate,
+      isResigned: true,
+      updatedAt: new Date().toISOString(),
+    };
+    this.employees.set(this.repository.update(updated));
   }
 
   deleteEmployee(id: string): void {
     this.employees.set(this.repository.delete(id));
+  }
+
+  private generateId(): string {
+    let id = '';
+    if (globalThis.crypto?.randomUUID) {
+      id = globalThis.crypto.randomUUID();
+      while (this.employees().some((employee) => employee.id === id)) {
+        id = globalThis.crypto.randomUUID();
+      }
+    } else {
+      id = `emp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    }
+    return id;
   }
 }

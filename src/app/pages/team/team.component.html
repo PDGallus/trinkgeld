@@ -1,0 +1,96 @@
+<main class="team-page">
+  <section class="page-header">
+    <h2 class="page-title">Team</h2>
+    <p class="page-subtitle">Verwalte dein Team und deren Anteile</p>
+  </section>
+
+  <div class="employee-list">
+    @for (employee of employeesStore.employees(); track employee.id) {
+    <div class="employee-card" [class.inactive]="!employee.active" (click)="openEmployeeSheet(employee)">
+      <div class="card-header">
+        <div class="avatar" [class.inactive]="!employee.active">
+          <span class="avatar-text" [class.inactive]="!employee.active">{{ getInitials(employee.name) }}</span>
+        </div>
+        <div class="card-content-wrapper">
+          <h3 class="card-title">{{ employee.name }}</h3>
+          <p class="card-subtitle">Mitarbeiter</p>
+        </div>
+        <div class="status-dot" [class.active]="employee.active" [class.inactive]="!employee.active"></div>
+      </div>
+
+      <div class="stats-row">
+        <div>
+          <p class="stat-label">Stunden/Woche</p>
+          <p class="stat-value">{{ employee.weeklyHours | number:'1.1-1' }} <span class="stat-unit">Std</span></p>
+        </div>
+        <div class="stat-column-right">
+          <p class="stat-label">Faktor</p>
+          <p class="stat-factor" [class.inactive]="!employee.active">{{ employee.baseFactor | number:'1.1-2' }}</p>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- Floating Action Button -->
+  <button class="fab signature-gradient" (click)="openEmployeeSheet()">
+    <span class="material-symbols-outlined fab-icon">person_add</span>
+  </button>
+
+  <!-- Action Sheet -->
+  <app-action-sheet [isOpen]="isAddEmployeeSheetOpen()" [title]="sheetTitle()" (closed)="closeEmployeeSheet()">
+
+    <form class="add-employee-form" (submit)="submitEmployee(); $event.preventDefault()">
+      <app-text-input label="Name" placeholder="Vor- und Nachname" icon="person" [(value)]="newEmployeeName">
+      </app-text-input>
+
+      <app-number-input label="Wochenstunden" placeholder="40" icon="schedule" [(value)]="newEmployeeHours">
+      </app-number-input>
+
+      @if (flowMode() === 'none') {
+      <div class="form-actions">
+        <button class="btn-primary-large" type="submit" [disabled]="!newEmployeeName() || newEmployeeHours() === null">
+          {{ submitLabel() }}
+        </button>
+      </div>
+
+      @if (editingEmployee(); as employee) {
+      @if (!employee.isResigned) {
+        @if (employee.active) {
+        <button class="btn-secondary-large" type="button" (click)="startPauseFlow()">
+          Mitarbeiter pausieren
+        </button>
+        } @else {
+        <button class="btn-secondary-large" type="button" (click)="reactivateEmployee()">
+          Mitarbeiter aktivieren
+        </button>
+        }
+        <button class="btn-secondary-large" type="button" (click)="startExitFlow()">
+          Austritt
+        </button>
+      }
+      <button class="btn-danger-ghost" type="button" (click)="deleteEmployee()">
+        <span class="material-symbols-outlined text-[20px]">delete</span>
+        <span>Mitarbeiter löschen</span>
+      </button>
+      }
+      } @else {
+      <div class="pause-flow">
+        <h3 class="text-lg font-semibold">{{ flowMode() === 'pause' ? 'Ab wann pausieren?' : 'Ab wann austreten?' }}</h3>
+        <app-calendar [selectedDate]="selectedPauseDate()"
+          (dateSelected)="selectedPauseDate.set($event)"></app-calendar>
+
+        <div class="form-actions">
+          <button class="btn-primary-large flex-1" type="button" (click)="confirmFlow()">
+            Bestätigen
+          </button>
+          <button class="btn-secondary-large flex-1" type="button" (click)="cancelFlow()">
+            Abbrechen
+          </button>
+        </div>
+      </div>
+      }
+    </form>
+
+  </app-action-sheet>
+</main>

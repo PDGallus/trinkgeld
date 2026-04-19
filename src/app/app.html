@@ -1,5 +1,6 @@
 <main class="app-shell">
-  <app-header-bar [title]="title()" [status]="status()" (exportBackup)="exportBackup()" (importBackup)="importBackup($event)" />
+  @if (!isNewDesignRoute()) {
+    <app-header-bar [title]="title()" [status]="status()" (exportBackup)="exportBackup()" (importBackup)="importBackup($event)" />
 
   @if (periodsStore.periods().length === 0) {
     <app-create-period
@@ -52,5 +53,10 @@
       (shareSickUnitsChange)="onShareSickUnitsChange($event.employeeId, $event.value)"
       (payoutAndCreateNextPeriod)="payoutAndCreateNextPeriod()"
     />
+    }
   }
+
+  <router-outlet></router-outlet>
 </main>
+
+<app-bottom-nav></app-bottom-nav>

@@ -1,0 +1,28 @@
+<div class="calendar-container">
+  <div class="calendar-header">
+    <button type="button" class="icon-button" (click)="prevMonth()">
+      <span class="material-symbols-outlined">chevron_left</span>
+    </button>
+    <div class="month-name">{{ monthName() }}</div>
+    <button type="button" class="icon-button" (click)="nextMonth()">
+      <span class="material-symbols-outlined">chevron_right</span>
+    </button>
+  </div>
+  
+  <div class="calendar-grid">
+    @for (day of weekDays; track day) {
+      <div class="weekday-header">{{ day }}</div>
+    }
+    
+    @for (day of calendarDays(); track day.date.toISOString()) {
+      <button type="button" 
+              class="day-cell" 
+              [class.not-current-month]="!day.isCurrentMonth"
+              [class.selected]="day.isSelected"
+              [class.today]="day.isToday"
+              (click)="selectDate(day)">
+        {{ day.date.getDate() }}
+      </button>
+    }
+  </div>
+</div>
