@@ -4,7 +4,7 @@
   @if (currentPeriod(); as period) {
     <div class="cashbox-summary" (click)="toggleExpanded()" (keydown)="toggleExpanded()">
       <div>
-        <strong>Offene Periode:</strong>
+        <strong>Offene Periode:</strong>Y
         {{ period.startDate | date : 'dd.MM.yyyy' : undefined : 'de-DE' }} - {{ periodDisplayEndDate(period) | date : 'dd.MM.yyyy' : undefined : 'de-DE' }}
       </div>
       <div>
@@ -64,7 +64,7 @@
                   @if (depositEntry.amount > 0) {
                     <button type="button" (click)="onDeleteDeposit(depositEntry.id)">Löschen</button>
                   } @else {
-                    <span>{{ depositLogLabel(depositEntry) }}</span>
+                    <span>{{ depositEntry.description || depositLogLabel(depositEntry) }}</span>
                   }
                 </td>
               </tr>

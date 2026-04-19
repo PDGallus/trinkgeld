@@ -38,10 +38,10 @@ export class EmployeesLocalStorageRepository {
     return next;
   }
 
-  setActive(id: EmployeeId, active: boolean): Employee[] {
+  setActive(id: EmployeeId, active: boolean, inactiveDate?: string): Employee[] {
     const now = new Date().toISOString();
     const next = this.getAll().map((employee) =>
-      employee.id === id ? { ...employee, active, updatedAt: now } : employee,
+      employee.id === id ? { ...employee, active, inactiveDate: inactiveDate || null, updatedAt: now } : employee,
     );
     this.saveAll(next);
     return next;

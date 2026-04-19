@@ -229,7 +229,7 @@ export class PeriodsStore {
     return { closedPeriod, outOfRangeAmount };
   }
 
-  payoutEmployeeFromOpenPeriod(periodId: string, employeeId: string, date: string): number {
+  payoutEmployeeFromOpenPeriod(periodId: string, employeeId: string, date: string, description?: string): number {
     if (!date) {
       throw new Error('Bitte ein Datum für die Austrittsauszahlung wählen.');
     }
@@ -260,6 +260,7 @@ export class PeriodsStore {
       periodId,
       amount: roundCurrency(-payoutAmount),
       date,
+      description,
       createdAt: nowIso,
     };
     this.depositsRepository.add(payoutLog);

@@ -1,0 +1,39 @@
+<!-- Backdrop Override (No Blur, Like Einzahlung) -->
+<div class="action-sheet-backdrop" [class.open]="isOpen()" (click)="onBackdropClick()"></div>
+
+<!-- Sheet Container -->
+<div
+  class="action-sheet-panel"
+  #sheetPanel
+  [style.transform]="transformY"
+  [style.transition]="transitionStyle"
+>
+  <!-- Header (Drag target) -->
+  <div
+    class="action-sheet-header"
+    (touchstart)="onTouchStart($event)"
+    (touchmove)="onTouchMove($event)"
+    (touchend)="onTouchEnd()"
+  >
+    <!-- Handle (from Einzahlung/Auszahlung) -->
+    <div class="drag-handle"></div>
+
+    <!-- Close Button (Auszahlung spec) -->
+    <button class="close-btn" (click)="close()">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+
+    <!-- Eyebrow/Subtitle (Einzahlung size) -->
+    @if (subtitle()) {
+      <p class="sheet-subtitle">{{ subtitle() }}</p>
+    }
+
+    <!-- Title (Einzahlung size) -->
+    <h2 class="sheet-title">{{ title() }}</h2>
+  </div>
+
+  <!-- Scrollable Content -->
+  <div class="action-sheet-content">
+    <ng-content></ng-content>
+  </div>
+</div>

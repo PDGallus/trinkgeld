@@ -1,0 +1,117 @@
+<header class="dashboard-header">
+  <div class="header-content">
+    <div class="header-title-wrapper">
+      <span class="material-symbols-outlined header-icon" data-icon="account_balance_wallet">account_balance_wallet</span>
+      <h1 class="header-title">Trinkgeldkasse</h1>
+    </div>
+  </div>
+</header>
+
+<main class="dashboard-main">
+  <!-- Summary Header -->
+  <section class="dashboard-section">
+    <div class="summary-card">
+      <p class="summary-label">Gesamtbetrag im Topf</p>
+      <div class="summary-amount-wrapper">
+        <span class="summary-amount">{{ formatCurrency(totalTip()) }}</span>
+        <span class="summary-currency">€</span>
+      </div>
+      <div class="summary-trend">
+        <span class="material-symbols-outlined trend-icon" [ngClass]="getTrendClass(trendIcon())">{{ getTrendIcon(trendIcon()) }}</span>
+        <span class="trend-text" [ngClass]="getTrendClass(trendIcon())">{{ getTrendText(trendPercent(), trendIcon()) }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Actions Grid -->
+  <section class="quick-actions-grid">
+    <!-- Action: Deposit -->
+    <div class="action-card" role="button" tabindex="0">
+      <div class="action-icon-wrapper deposit-icon">
+        <span class="material-symbols-outlined" data-icon="add" style="font-variation-settings: 'wght' 600;">add</span>
+      </div>
+      <h3 class="action-title">Trinkgeld einzahlen</h3>
+      <p class="action-desc">Eingänge erfassen</p>
+    </div>
+
+    <!-- Action: Payout -->
+    <div class="action-card" role="button" tabindex="0">
+      <div class="action-icon-wrapper payout-icon">
+        <span class="material-symbols-outlined" data-icon="payments" style="font-variation-settings: 'FILL' 1;">payments</span>
+      </div>
+      <h3 class="action-title">Auszahlung vorbereiten</h3>
+      <p class="action-desc">Beträge verteilen</p>
+    </div>
+  </section>
+
+  <!-- Offene Periode -->
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h2 class="section-title">Offene Periode</h2>
+      <span class="period-badge">Seit {{ periodStartDateDisplay() }}</span>
+    </div>
+
+    <div class="period-stats-container">
+      <!-- Main Status Card: Duration -->
+      <div class="stat-card main-stat">
+        <div class="stat-content">
+          <div class="stat-icon-wrapper">
+            <span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+          </div>
+          <div>
+            <p class="stat-label">Aktuelle Dauer</p>
+            <p class="stat-value">{{ activeWeeks() }} Woche{{ activeWeeks() !== 1 ? 'n' : '' }} aktiv</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Secondary Stats Grid -->
+      <div class="secondary-stats-grid">
+        <!-- Employees -->
+        <div class="stat-card">
+          <p class="stat-label">Mitarbeiter</p>
+          <p class="stat-value large">{{ activeEmployeesCount() < 10 ? '0' + activeEmployeesCount() : activeEmployeesCount() }}</p>
+        </div>
+        <!-- Average per Week -->
+        <div class="stat-card">
+          <p class="stat-label">Ø pro Woche</p>
+          <div class="stat-value-wrapper">
+            <p class="stat-value large">{{ averagePerWeek() | number:'1.0-0' }}</p>
+            <p class="stat-currency">€</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Letzte Einzahlungen -->
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h2 class="section-title">Letzte Einzahlungen</h2>
+       <button class="text-button">Alle sehen</button>
+    </div>
+
+    <div class="deposits-list">
+      @if (recentDeposits().length === 0) {
+        <div class="deposit-entry" style="justify-content: center;">
+          <p class="deposit-time" style="color: var(--on-surface-variant); font-weight: 500;">Noch keine Einzahlungen in dieser Periode.</p>
+        </div>
+      }
+
+      @for (deposit of recentDeposits(); track deposit.id) {
+        <div class="deposit-entry">
+          <div class="deposit-info">
+            <div class="deposit-icon-wrapper">
+              <span class="material-symbols-outlined" data-icon="payments">payments</span>
+            </div>
+            <div>
+              <p class="deposit-time">{{ formatDepositDate(deposit.createdAt) }}</p>
+              <p class="deposit-type">{{ deposit.description || 'Barzahlung' }}</p>
+            </div>
+          </div>
+          <p class="deposit-amount">+{{ formatCurrency(deposit.amount) }} €</p>
+        </div>
+      }
+    </div>
+  </section>
+</main>

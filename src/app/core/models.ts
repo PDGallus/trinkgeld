@@ -7,6 +7,8 @@ export interface Employee {
   weeklyHours: number;
   baseFactor: number;
   active: boolean;
+  inactiveDate?: string | null;
+  isResigned?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -44,6 +46,7 @@ export interface TipDeposit {
   periodId: PeriodId;
   amount: number;
   date: string;
+  description?: string;
   createdAt: string;
 }
 
