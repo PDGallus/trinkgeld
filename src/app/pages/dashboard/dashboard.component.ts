@@ -1,15 +1,16 @@
-import { Component, ChangeDetectionStrategy, computed, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PeriodsStore } from '../../core/stores/periods.store';
 import { EmployeesStore } from '../../core/stores/employees.store';
 import { TipDepositsLocalStorageRepository } from '../../core/repositories/tip-deposits-local-storage.repository';
+import { ActionSheetComponent } from '../../shared/components/action-sheet/action-sheet.component';
 import { format, isToday, isYesterday } from 'date-fns';
 import { de } from 'date-fns/locale';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ActionSheetComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,6 +56,56 @@ export class DashboardComponent {
       .filter(d => d.amount > 0)
       .slice(0, 3);
   });
+
+  // --- Deposit Action Sheet ---
+  readonly isDepositSheetOpen = signal(false);
+  private readonly depositDigits = signal('');
+
+  readonly depositAmount = computed(() => {
+    const d = this.depositDigits();
+    return d.length === 0 ? 0 : parseInt(d, 10) / 100;
+  });
+
+  readonly depositDisplay = computed(() => {
+    const d = this.depositDigits();
+    const padded = d.padStart(3, '0');
+    const intPart = parseInt(padded.slice(0, -2), 10);
+    const decPart = padded.slice(-2);
+    return intPart.toLocaleString('de-DE') + ',' + decPart;
+  });
+
+  readonly afterDepositAmount = computed(() => this.totalTip() + this.depositAmount());
+
+  readonly todaySubtitle = format(new Date(), "'Heute,' dd. MMMM yyyy", { locale: de });
+
+  openDepositSheet(): void {
+    this.depositDigits.set('');
+    this.isDepositSheetOpen.set(true);
+  }
+
+  closeDepositSheet(): void {
+    this.isDepositSheetOpen.set(false);
+  }
+
+  onNumPad(key: string): void {
+    if (key === 'backspace') {
+      this.depositDigits.update(d => d.slice(0, -1));
+      return;
+    }
+    const current = this.depositDigits();
+    if (current.length >= 8) return;
+    if (current === '' && key === '0') return;
+    this.depositDigits.update(d => d + key);
+  }
+
+  submitDeposit(): void {
+    const period = this.currentPeriod();
+    const amount = this.depositAmount();
+    if (!period || amount <= 0) return;
+    const today = format(new Date(), 'yyyy-MM-dd');
+    this.periodsStore.addDepositToPeriod(period.id, amount, today);
+    this.isDepositSheetOpen.set(false);
+  }
 
   formatDepositDate(dateIso: string): string {
     const d = new Date(dateIso);

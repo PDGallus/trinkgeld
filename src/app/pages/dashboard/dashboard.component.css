@@ -321,6 +321,159 @@
   margin: 0;
 }
 
+/* Deposit Action Sheet Content */
+.deposit-amount-display {
+  background-color: color-mix(in srgb, var(--primary) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 10%, transparent);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+
+  .deposit-amount-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .deposit-amount-value-wrapper {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .deposit-amount-value {
+    font-size: 3.75rem;
+    font-weight: 900;
+    color: var(--primary);
+    letter-spacing: -0.05em;
+    line-height: 1;
+  }
+
+  .deposit-amount-currency {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: color-mix(in srgb, var(--primary) 60%, transparent);
+  }
+}
+
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.numpad-key {
+  background-color: var(--surface-container-lowest);
+  color: var(--on-surface);
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 150ms ease, transform 100ms ease;
+
+  &:active {
+    background-color: var(--surface-container-high);
+    transform: scale(0.95);
+  }
+
+  &.numpad-key--muted {
+    background-color: var(--surface-container-low);
+  }
+
+  &.numpad-key--delete {
+    background-color: var(--surface-container-low);
+    color: var(--error);
+
+    .material-symbols-outlined {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+.deposit-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.deposit-summary-card {
+  background-color: var(--surface-container-low);
+  border: 1px solid var(--surface-container);
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .deposit-summary-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 0.125rem 0;
+
+    &.deposit-summary-label--primary {
+      color: var(--primary);
+    }
+  }
+
+  .deposit-summary-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--on-surface);
+    margin: 0;
+
+    &.deposit-summary-value--primary {
+      font-weight: 900;
+      color: var(--primary);
+    }
+  }
+
+  .deposit-summary-right {
+    text-align: right;
+  }
+}
+
+.deposit-submit-btn {
+  width: 100%;
+  background-color: var(--primary);
+  color: var(--on-primary);
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.025em;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 30%, transparent);
+  transition: all 150ms ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
 /* Deposits List */
 .deposits-list {
   background-color: var(--surface-container-lowest);

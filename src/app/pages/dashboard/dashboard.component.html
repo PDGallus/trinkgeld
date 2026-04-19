@@ -26,7 +26,10 @@
   <!-- Quick Actions Grid -->
   <section class="quick-actions-grid">
     <!-- Action: Deposit -->
-    <div class="action-card" role="button" tabindex="0">
+    <div class="action-card" role="button" tabindex="0"
+         (click)="openDepositSheet()"
+         (keydown.enter)="openDepositSheet()"
+         (keydown.space)="openDepositSheet()">
       <div class="action-icon-wrapper deposit-icon">
         <span class="material-symbols-outlined" data-icon="add" style="font-variation-settings: 'wght' 600;">add</span>
       </div>
@@ -115,3 +118,57 @@
     </div>
   </section>
 </main>
+
+<app-action-sheet
+  [isOpen]="isDepositSheetOpen()"
+  [subtitle]="todaySubtitle"
+  title="Trinkgeld einzahlen"
+  (closed)="closeDepositSheet()">
+
+  <!-- Betrag-Anzeige -->
+  <div class="deposit-amount-display">
+    <p class="deposit-amount-label">Eingabebetrag</p>
+    <div class="deposit-amount-value-wrapper">
+      <span class="deposit-amount-value">{{ depositDisplay() }}</span>
+      <span class="deposit-amount-currency">€</span>
+    </div>
+  </div>
+
+  <!-- Numpad -->
+  <div class="numpad-grid">
+    @for (key of ['1','2','3','4','5','6','7','8','9',',','0','backspace']; track key) {
+      <button
+        class="numpad-key"
+        [class.numpad-key--muted]="key === ','"
+        [class.numpad-key--delete]="key === 'backspace'"
+        (click)="onNumPad(key)">
+        @if (key === 'backspace') {
+          <span class="material-symbols-outlined">backspace</span>
+        } @else {
+          {{ key }}
+        }
+      </button>
+    }
+  </div>
+
+  <!-- Zusammenfassung & Bestätigen -->
+  <div class="deposit-summary">
+    <div class="deposit-summary-card">
+      <div>
+        <p class="deposit-summary-label">Aktueller Topf</p>
+        <p class="deposit-summary-value">{{ formatCurrency(totalTip()) }} €</p>
+      </div>
+      <div class="deposit-summary-right">
+        <p class="deposit-summary-label deposit-summary-label--primary">Nach Einzahlung</p>
+        <p class="deposit-summary-value deposit-summary-value--primary">{{ formatCurrency(afterDepositAmount()) }} €</p>
+      </div>
+    </div>
+    <button
+      class="deposit-submit-btn"
+      [disabled]="depositAmount() <= 0"
+      (click)="submitDeposit()">
+      Einzahlen
+    </button>
+  </div>
+
+</app-action-sheet>
