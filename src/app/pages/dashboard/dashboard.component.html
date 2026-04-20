@@ -4,7 +4,25 @@
       <span class="material-symbols-outlined header-icon" data-icon="account_balance_wallet">account_balance_wallet</span>
       <h1 class="header-title">Trinkgeldkasse</h1>
     </div>
+    <div class="header-actions">
+      <input #fileInput type="file" accept=".json" class="header-file-input" (change)="onImportFile($event)">
+      <button class="header-action-btn" title="Backup importieren" (click)="fileInput.click()">
+        <span class="material-symbols-outlined">upload</span>
+      </button>
+      <button class="header-action-btn" title="Backup exportieren" (click)="exportBackup()">
+        <span class="material-symbols-outlined">download</span>
+      </button>
+    </div>
   </div>
+  @if (importError()) {
+    <div class="import-error-bar">
+      <span class="material-symbols-outlined import-error-icon">error</span>
+      <span>{{ importError() }}</span>
+      <button class="import-error-close" (click)="importError.set(null)">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+  }
 </header>
 
 <main class="dashboard-main">
