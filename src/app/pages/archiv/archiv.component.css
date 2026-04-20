@@ -1,0 +1,498 @@
+/* Header */
+.archiv-header {
+  width: 100%;
+  position: sticky;
+  top: 0;
+  background-color: rgb(249 249 254 / 0.9);
+  backdrop-filter: blur(24px);
+  z-index: 50;
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+  }
+
+  .header-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .header-icon {
+    color: var(--primary);
+    font-size: 1.5rem;
+  }
+
+  .header-title {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: var(--on-surface);
+    letter-spacing: -0.025em;
+    margin: 0;
+  }
+}
+
+/* Main */
+.archiv-main {
+  padding: 1rem 1.5rem 8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Hero */
+.archiv-hero {
+  .hero-eyebrow {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--on-surface-variant);
+    margin: 0 0 0.25rem;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--on-surface);
+    letter-spacing: -0.025em;
+    margin: 0;
+    line-height: 1.1;
+  }
+}
+
+/* Section */
+.archiv-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--on-surface);
+    letter-spacing: -0.025em;
+    margin: 0 0 0.5rem 0.25rem;
+  }
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 3rem 1rem;
+  text-align: center;
+
+  .empty-icon {
+    font-size: 3rem;
+    color: var(--outline-variant);
+  }
+
+  .empty-text {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    margin: 0;
+  }
+
+  .empty-sub {
+    font-size: 0.875rem;
+    color: var(--on-surface-variant);
+    opacity: 0.7;
+    margin: 0;
+  }
+}
+
+/* Period List */
+.period-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Period Card */
+.period-card {
+  background: var(--surface-container-low);
+  border-radius: 2rem;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(46, 51, 58, 0.06);
+  }
+
+  .period-card-accent {
+    width: 6px;
+    background: var(--primary);
+    border-radius: 0 6px 6px 0;
+    flex-shrink: 0;
+  }
+
+  .period-card-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.25rem 1.25rem 1rem;
+    flex: 1;
+    gap: 1rem;
+  }
+
+  .period-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .period-number {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  h4.period-date-range {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--on-surface);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .period-meta {
+    font-size: 0.8125rem;
+    color: var(--on-surface-variant);
+    margin: 0;
+  }
+
+  .period-card-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .period-amount-block {
+    text-align: right;
+  }
+
+  .period-amount {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--on-surface);
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .period-amount-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--on-surface-variant);
+    margin: 0;
+  }
+
+  .chevron-icon {
+    color: var(--outline-variant);
+    font-size: 1.25rem;
+    transition: transform 0.2s ease;
+  }
+
+  &:hover .chevron-icon {
+    transform: translateX(3px);
+  }
+}
+
+/* ===== DETAIL ACTION SHEET CONTENT ===== */
+
+/* Summary */
+.detail-summary {
+  margin-bottom: 2rem;
+
+  .detail-summary-card {
+    background: var(--surface-container-low);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .detail-summary-label {
+    font-size: 0.875rem;
+    color: var(--on-surface-variant);
+    font-weight: 500;
+  }
+
+  .detail-summary-amount {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 0.25rem 0 1rem;
+  }
+
+  .detail-amount-value {
+    font-size: 2.25rem;
+    font-weight: 900;
+    color: var(--on-surface-variant);
+    opacity: 0.85;
+    letter-spacing: -0.025em;
+  }
+
+  .detail-amount-currency {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    opacity: 0.85;
+  }
+
+  .detail-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--on-surface-variant);
+  }
+
+  .detail-meta-icon {
+    font-size: 1rem;
+  }
+
+  .detail-meta-text {
+    font-size: 0.8125rem;
+  }
+}
+
+/* Breakdown */
+.detail-breakdown {
+  margin-bottom: 2rem;
+
+  .breakdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .breakdown-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--on-surface);
+    margin: 0;
+  }
+
+  .breakdown-badge {
+    background: var(--surface-container-highest);
+    padding: 0.2rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+/* Employee List */
+.employee-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Employee Card */
+.employee-card {
+  background: var(--surface-container-lowest);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  box-shadow: 0 8px 20px rgba(46, 51, 58, 0.03);
+  opacity: 0.95;
+
+  .employee-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+  }
+
+  .employee-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .employee-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--surface-container-highest);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    flex-shrink: 0;
+  }
+
+  h4.employee-name {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--on-surface);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .employee-meta {
+    font-size: 0.75rem;
+    color: var(--on-surface-variant);
+    margin: 0;
+  }
+
+  .employee-amount-block {
+    text-align: right;
+  }
+
+  .employee-amount {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--on-surface-variant);
+    white-space: nowrap;
+  }
+
+  .employee-amount-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .employee-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--surface-container);
+  }
+}
+
+/* Color variants for avatars */
+.employee-card.color-0 .employee-avatar {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+.employee-card.color-1 .employee-avatar {
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+}
+
+.employee-card.color-2 .employee-avatar {
+  background: var(--surface-container-high);
+  color: var(--on-surface-variant);
+}
+
+/* Badges */
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--surface-container);
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--on-surface-variant);
+
+  .badge-icon {
+    font-size: 0.875rem;
+  }
+}
+
+.badge-sick {
+  background: var(--error-container);
+  color: var(--on-error-container);
+}
+
+.badge-ok {
+  background: var(--surface-container);
+  color: var(--on-surface-variant);
+}
+
+/* Totals */
+.detail-totals {
+  background: var(--surface-container-high);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  .totals-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+
+    &--total {
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(46, 51, 58, 0.08);
+    }
+  }
+
+  .totals-label {
+    color: var(--on-surface-variant);
+  }
+
+  .totals-value {
+    font-weight: 700;
+    color: var(--on-surface-variant);
+  }
+
+  .totals-label-bold {
+    font-weight: 700;
+    color: var(--on-surface);
+  }
+
+  .totals-value-bold {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: var(--on-surface-variant);
+    opacity: 0.9;
+  }
+}
+
+/* Footer */
+.detail-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 3rem;
+  padding-bottom: 1rem;
+
+  .footer-icon {
+    font-size: 1rem;
+    color: var(--on-surface-variant);
+  }
+
+  .footer-text {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+}

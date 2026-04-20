@@ -8,5 +8,9 @@ export const routes: Routes = [
   {
     path: 'team',
     loadComponent: () => import('./pages/team/team.component').then(m => m.TeamComponent)
+  },
+  {
+    path: 'archiv',
+    loadComponent: () => import('./pages/archiv/archiv.component').then(m => m.ArchivComponent)
   }
 ];
