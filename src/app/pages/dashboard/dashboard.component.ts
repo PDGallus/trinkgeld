@@ -5,6 +5,7 @@ import { EmployeesStore } from '../../core/stores/employees.store';
 import { PeriodDetailStore } from '../../core/stores/period-detail.store';
 import { TipDepositsLocalStorageRepository } from '../../core/repositories/tip-deposits-local-storage.repository';
 import { ActionSheetComponent } from '../../shared/components/action-sheet/action-sheet.component';
+import { BackupService } from '../../core/services/backup.service';
 import { PayoutShare } from '../../core/models';
 import { format, isToday, isYesterday } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -22,6 +23,7 @@ export class DashboardComponent {
   private readonly employeesStore = inject(EmployeesStore);
   private readonly periodDetailStore = inject(PeriodDetailStore);
   private readonly depositsRepo = inject(TipDepositsLocalStorageRepository);
+  private readonly backupService = inject(BackupService);
 
   readonly currentPeriod = this.periodsStore.currentPeriod;
 
@@ -233,5 +235,39 @@ export class DashboardComponent {
 
   private getInitials(name: string): string {
     return name.split(' ').slice(0, 2).map(p => p[0] ?? '').join('').toUpperCase();
+  }
+
+  // --- Export / Import ---
+  readonly importError = signal<string | null>(null);
+
+  exportBackup(): void {
+    const json = this.backupService.exportAsJson();
+    const date = format(new Date(), 'yyyy-MM-dd');
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `trinkgeldkasse-backup-${date}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  onImportFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.importError.set(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        this.backupService.importFromJsonText(reader.result as string);
+        this.periodsStore.loadFromLocalStorage();
+        this.employeesStore.loadFromLocalStorage();
+      } catch (err) {
+        this.importError.set(err instanceof Error ? err.message : 'Import fehlgeschlagen.');
+      }
+      input.value = '';
+    };
+    reader.readAsText(file);
   }
 }
