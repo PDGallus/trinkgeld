@@ -154,9 +154,10 @@ export class DashboardComponent {
 
   openPayoutSheet(): void {
     const period = this.currentPeriod();
-    if (!period) return;
-    this.periodDetailStore.setPeriodId(period.id);
-    this.periodDetailStore.load();
+    if (period) {
+      this.periodDetailStore.setPeriodId(period.id);
+      this.periodDetailStore.load();
+    }
     this.expandedEmployeeId.set(null);
     this.isPayoutSheetOpen.set(true);
   }

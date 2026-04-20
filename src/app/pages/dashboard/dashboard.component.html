@@ -182,6 +182,14 @@
   title="Auszahlung vorbereiten"
   (closed)="closePayoutSheet()">
 
+  @if (!currentPeriod()) {
+    <div class="payout-no-period">
+      <span class="material-symbols-outlined payout-no-period-icon">event_busy</span>
+      <p class="payout-no-period-title">Keine offene Periode</p>
+      <p class="payout-no-period-desc">Erstelle zuerst eine neue Periode, bevor du eine Auszahlung vorbereitest.</p>
+    </div>
+  } @else {
+
   <!-- Gesamtsumme im Topf -->
   <div class="payout-total-card">
     <span class="payout-total-label">Gesamtsumme im Topf</span>
@@ -305,5 +313,7 @@
     <span class="material-symbols-outlined">payments</span>
     Auszahlung abschließen
   </button>
+
+  } <!-- end @else -->
 
 </app-action-sheet>
