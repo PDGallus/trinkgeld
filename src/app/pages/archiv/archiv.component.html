@@ -1,0 +1,152 @@
+<header class="archiv-header">
+  <div class="header-content">
+    <div class="header-title-wrapper">
+      <span class="material-symbols-outlined header-icon" data-icon="account_balance_wallet">account_balance_wallet</span>
+      <h1 class="header-title">Trinkgeldkasse</h1>
+    </div>
+  </div>
+</header>
+
+<main class="archiv-main">
+  <!-- Page Hero -->
+  <section class="archiv-hero">
+    <p class="hero-eyebrow">Archiv &amp; Payouts</p>
+    <h2 class="hero-title">Historie</h2>
+  </section>
+
+  <!-- Closed Periods List -->
+  <section class="archiv-section">
+    <h3 class="section-title">Abgeschlossene Perioden</h3>
+
+    @if (closedPeriods().length === 0) {
+      <div class="empty-state">
+        <span class="material-symbols-outlined empty-icon">inventory_2</span>
+        <p class="empty-text">Noch keine abgeschlossenen Perioden</p>
+        <p class="empty-sub">Führe auf dem Dashboard deine erste Auszahlung durch.</p>
+      </div>
+    }
+
+    <div class="period-list">
+      @for (period of closedPeriods(); track period.id; let i = $index) {
+        <div class="period-card" role="button" tabindex="0"
+             (click)="openDetail(period.id)"
+             (keydown.enter)="openDetail(period.id)"
+             (keydown.space)="openDetail(period.id)">
+          <div class="period-card-accent"></div>
+          <div class="period-card-body">
+            <div class="period-card-info">
+              <span class="period-number">Auszahlung #{{ getPeriodNumber(i) }}</span>
+              <h4 class="period-date-range">{{ formatDateRange(period) }}</h4>
+              <p class="period-meta">Verteilt an {{ getShareCount(period.id) }} Mitarbeiter</p>
+            </div>
+            <div class="period-card-right">
+              <div class="period-amount-block">
+                <p class="period-amount">{{ formatCurrency(period.controlSum) }} €</p>
+                <p class="period-amount-label">Gesamtbetrag</p>
+              </div>
+              <span class="material-symbols-outlined chevron-icon">chevron_right</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+</main>
+
+<!-- Detail Action Sheet -->
+<app-action-sheet
+  [isOpen]="isDetailSheetOpen()"
+  subtitle="Archivierte Periode"
+  title="Details der Auszahlung"
+  (closed)="closeDetail()">
+
+  @if (selectedPeriod(); as period) {
+    <!-- Summary -->
+    <section class="detail-summary">
+      <div class="detail-summary-card">
+        <span class="detail-summary-label">Ausgezahlte Gesamtsumme</span>
+        <div class="detail-summary-amount">
+          <span class="detail-amount-value">{{ formatCurrency(period.controlSum) }}</span>
+          <span class="detail-amount-currency">€</span>
+        </div>
+        <div class="detail-meta-row">
+          <span class="material-symbols-outlined detail-meta-icon">event_available</span>
+          <span class="detail-meta-text">Abgeschlossen am {{ formatClosedDate(period) }}</span>
+        </div>
+        <div class="detail-meta-row">
+          <span class="material-symbols-outlined detail-meta-icon">calendar_today</span>
+          <span class="detail-meta-text">Zeitraum: {{ formatDateRangeFull(period) }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Employee Breakdown -->
+    <section class="detail-breakdown">
+      <div class="breakdown-header">
+        <h3 class="breakdown-title">Mitarbeiter Aufteilung</h3>
+        <span class="breakdown-badge">{{ detailRows().length }} Personen</span>
+      </div>
+
+      <div class="employee-list">
+        @for (row of detailRows(); track row.employeeId) {
+          <div class="employee-card" [class]="'color-' + row.colorIndex">
+            <div class="employee-card-top">
+              <div class="employee-info">
+                <div class="employee-avatar">{{ row.initials }}</div>
+                <div>
+                  <h4 class="employee-name">{{ row.name }}</h4>
+                  <p class="employee-meta">{{ row.employmentType }} · {{ row.totalHours | number:'1.0-1':'de' }}h</p>
+                </div>
+              </div>
+              <div class="employee-amount-block">
+                <span class="employee-amount">{{ formatCurrency(row.amount) }} €</span>
+                <span class="employee-amount-label">Anteil ausgezahlt</span>
+              </div>
+            </div>
+            <div class="employee-badges">
+              <div class="badge">
+                <span class="material-symbols-outlined badge-icon" style="font-variation-settings: 'FILL' 1;">star</span>
+                <span>Faktor {{ formatFactor(row.factor) }}</span>
+              </div>
+              @if (row.hasSick) {
+                <div class="badge badge-sick">
+                  <span class="material-symbols-outlined badge-icon">medical_services</span>
+                  <span>Krank (-{{ row.sickPercent }}%)</span>
+                </div>
+              } @else {
+                <div class="badge badge-ok">
+                  <span class="material-symbols-outlined badge-icon">check_circle</span>
+                  <span>Anwesend</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Totals -->
+    <section class="detail-totals">
+      <div class="totals-row">
+        <span class="totals-label">Verteilte Summe</span>
+        <span class="totals-value">{{ formatCurrency(period.controlSum - period.remainder) }} €</span>
+      </div>
+      @if (period.remainder !== 0) {
+        <div class="totals-row">
+          <span class="totals-label">Rundungsdifferenz</span>
+          <span class="totals-value">{{ formatCurrency(period.remainder) }} €</span>
+        </div>
+      }
+      <div class="totals-row totals-row--total">
+        <span class="totals-label-bold">Gesamtbetrag</span>
+        <span class="totals-value-bold">{{ formatCurrency(period.controlSum) }} €</span>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="detail-footer">
+      <span class="material-symbols-outlined footer-icon">inventory_2</span>
+      <span class="footer-text">Diese Periode ist archiviert</span>
+    </div>
+  }
+</app-action-sheet>

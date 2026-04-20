@@ -80,7 +80,11 @@ export class App implements OnInit {
   ) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        this.isNewDesignRoute.set(this.router.url.includes('/team') || this.router.url.includes('/dashboard'));
+        this.isNewDesignRoute.set(
+          this.router.url.includes('/team') ||
+          this.router.url.includes('/dashboard') ||
+          this.router.url.includes('/archiv')
+        );
       }
     });
   }
