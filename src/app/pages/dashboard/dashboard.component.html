@@ -38,7 +38,10 @@
     </div>
 
     <!-- Action: Payout -->
-    <div class="action-card" role="button" tabindex="0">
+    <div class="action-card" role="button" tabindex="0"
+         (click)="openPayoutSheet()"
+         (keydown.enter)="openPayoutSheet()"
+         (keydown.space)="openPayoutSheet()">
       <div class="action-icon-wrapper payout-icon">
         <span class="material-symbols-outlined" data-icon="payments" style="font-variation-settings: 'FILL' 1;">payments</span>
       </div>
@@ -170,5 +173,147 @@
       Einzahlen
     </button>
   </div>
+
+</app-action-sheet>
+
+<app-action-sheet
+  [isOpen]="isPayoutSheetOpen()"
+  subtitle="Aktuelle Periode"
+  title="Auszahlung vorbereiten"
+  (closed)="closePayoutSheet()">
+
+  @if (!currentPeriod()) {
+    <div class="payout-no-period">
+      <span class="material-symbols-outlined payout-no-period-icon">event_busy</span>
+      <p class="payout-no-period-title">Keine offene Periode</p>
+      <p class="payout-no-period-desc">Erstelle zuerst eine neue Periode, bevor du eine Auszahlung vorbereitest.</p>
+    </div>
+  } @else {
+
+  <!-- Gesamtsumme im Topf -->
+  <div class="payout-total-card">
+    <span class="payout-total-label">Gesamtsumme im Topf</span>
+    <div class="payout-total-amount-wrapper">
+      <span class="payout-total-amount">{{ formatCurrency(payoutTotal()) }}</span>
+      <span class="payout-total-currency">€</span>
+    </div>
+    <div class="payout-date-range">
+      <span class="material-symbols-outlined payout-date-icon">calendar_today</span>
+      <span>{{ payoutDateRange() }}</span>
+    </div>
+  </div>
+
+  <!-- Mitarbeiter Aufteilung -->
+  <div class="payout-employees-section">
+    <div class="payout-employees-header">
+      <h3 class="payout-employees-title">Mitarbeiter Aufteilung</h3>
+      <span class="payout-count-badge">{{ payoutRows().length }} Personen</span>
+    </div>
+
+    <div class="payout-employee-list">
+      @for (row of payoutRows(); track row.employee.id) {
+        <div class="payout-employee-card" [class.payout-employee-card--expanded]="expandedEmployeeId() === row.employee.id">
+
+          <!-- Card Header -->
+          <div class="payout-card-header"
+               role="button"
+               tabindex="0"
+               (click)="togglePayoutEmployee(row.employee.id)"
+               (keydown.enter)="togglePayoutEmployee(row.employee.id)"
+               (keydown.space)="togglePayoutEmployee(row.employee.id)">
+            <div class="payout-card-employee">
+              <div class="payout-avatar payout-avatar--{{ row.colorIndex }}">{{ row.initials }}</div>
+              <div>
+                <p class="payout-card-name">{{ row.employee.name }}</p>
+                <p class="payout-card-meta">{{ row.employmentType }} · {{ row.employee.weeklyHours }}h/Woche</p>
+              </div>
+            </div>
+            @if (expandedEmployeeId() === row.employee.id) {
+              <span class="material-symbols-outlined payout-chevron">expand_less</span>
+            } @else {
+              <div class="payout-card-right">
+                <div class="payout-card-amount-col">
+                  <span class="payout-card-amount">{{ formatCurrency(row.share.amount) }} €</span>
+                  <span class="payout-card-amount-label">Berechneter Anteil</span>
+                </div>
+                <span class="material-symbols-outlined payout-chevron payout-chevron--muted">expand_more</span>
+              </div>
+            }
+          </div>
+
+          <!-- Expandierter Bereich -->
+          @if (expandedEmployeeId() === row.employee.id) {
+            <div class="payout-card-body">
+
+              <!-- Krankheitswochen -->
+              <div class="payout-sick-section">
+                <label class="payout-sick-label">Krankheitswochen (ab 6. Woche)</label>
+                <div class="payout-sick-input-row">
+                  <div class="payout-sick-display">
+                    <span class="material-symbols-outlined payout-sick-icon">medical_services</span>
+                    <span class="payout-sick-value">{{ row.share.sickUnits }}</span>
+                  </div>
+                  <div class="payout-sick-stepper">
+                    <button class="payout-stepper-btn"
+                            (click)="adjustSickWeeks(row.employee.id, row.share, -1)">
+                      <span class="material-symbols-outlined">remove</span>
+                    </button>
+                    <button class="payout-stepper-btn"
+                            (click)="adjustSickWeeks(row.employee.id, row.share, 1)">
+                      <span class="material-symbols-outlined">add</span>
+                    </button>
+                  </div>
+                </div>
+                <p class="payout-sick-hint">Hinweis: Die Lohnfortzahlung endet nach der 6. Woche.</p>
+              </div>
+
+              <!-- Stunden & Faktor -->
+              <div class="payout-stats-grid">
+                <div class="payout-stat-card">
+                  <p class="payout-stat-label">Stunden</p>
+                  <p class="payout-stat-value">{{ formatHours(row.totalHours) }} h</p>
+                </div>
+                <div class="payout-stat-card">
+                  <p class="payout-stat-label">Faktor</p>
+                  <p class="payout-stat-value">{{ formatFactor(row.share.adjustedFactor) }}</p>
+                </div>
+              </div>
+
+              <!-- Berechneter Anteil im expanded state -->
+              <div class="payout-expanded-amount">
+                <span class="payout-expanded-amount-label">Berechneter Anteil</span>
+                <span class="payout-expanded-amount-value">{{ formatCurrency(row.share.amount) }} €</span>
+              </div>
+
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Summen -->
+    <div class="payout-totals">
+      <div class="payout-totals-row">
+        <span>Verteilte Summe</span>
+        <span class="payout-totals-value">{{ formatCurrency(payoutControlSum()) }} €</span>
+      </div>
+      <div class="payout-totals-row">
+        <span>Rundungsdifferenz (Kasse)</span>
+        <span class="payout-totals-value">{{ formatCurrency(payoutRemainder()) }} €</span>
+      </div>
+      <div class="payout-totals-row payout-totals-row--total">
+        <span>Gesamt Auszahlung</span>
+        <span class="payout-totals-total-value">{{ formatCurrency(payoutTotal()) }} €</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auszahlung abschließen -->
+  <button class="payout-submit-btn" (click)="submitPayout()">
+    <span class="material-symbols-outlined">payments</span>
+    Auszahlung abschließen
+  </button>
+
+  } <!-- end @else -->
 
 </app-action-sheet>

@@ -2,8 +2,10 @@ import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { PeriodsStore } from '../../core/stores/periods.store';
 import { EmployeesStore } from '../../core/stores/employees.store';
+import { PeriodDetailStore } from '../../core/stores/period-detail.store';
 import { TipDepositsLocalStorageRepository } from '../../core/repositories/tip-deposits-local-storage.repository';
 import { ActionSheetComponent } from '../../shared/components/action-sheet/action-sheet.component';
+import { PayoutShare } from '../../core/models';
 import { format, isToday, isYesterday } from 'date-fns';
 import { de } from 'date-fns/locale';
 
@@ -18,15 +20,16 @@ import { de } from 'date-fns/locale';
 export class DashboardComponent {
   private readonly periodsStore = inject(PeriodsStore);
   private readonly employeesStore = inject(EmployeesStore);
+  private readonly periodDetailStore = inject(PeriodDetailStore);
   private readonly depositsRepo = inject(TipDepositsLocalStorageRepository);
 
   readonly currentPeriod = this.periodsStore.currentPeriod;
-  
+
   readonly totalTip = computed(() => this.currentPeriod()?.carryOverIncluded ?? 0);
-  
+
   readonly trendPercent = computed(() => this.currentPeriod()?.trendPercent ?? 0);
   readonly trendIcon = computed(() => this.currentPeriod()?.trendIcon ?? 'steady');
-  
+
   readonly activeWeeks = computed(() => {
     const period = this.currentPeriod();
     if (!period) return 0;
@@ -39,7 +42,7 @@ export class DashboardComponent {
     return format(new Date(period.startDate), 'dd. MMM', { locale: de });
   });
 
-  readonly activeEmployeesCount = computed(() => 
+  readonly activeEmployeesCount = computed(() =>
     this.employeesStore.employees().filter(e => e.active).length
   );
 
@@ -107,6 +110,80 @@ export class DashboardComponent {
     this.isDepositSheetOpen.set(false);
   }
 
+  // --- Payout Action Sheet ---
+  readonly isPayoutSheetOpen = signal(false);
+  readonly expandedEmployeeId = signal<string | null>(null);
+
+  readonly payoutPeriod = this.periodDetailStore.period;
+  readonly payoutShares = this.periodDetailStore.shares;
+  readonly payoutEmployees = this.periodDetailStore.employees;
+
+  readonly payoutRows = computed(() => {
+    const employees = this.payoutEmployees();
+    const shares = this.payoutShares();
+    const period = this.payoutPeriod();
+
+    return shares
+      .map((share, index) => {
+        const employee = employees.find(e => e.id === share.employeeId);
+        if (!employee) return null;
+        return {
+          share,
+          employee,
+          totalHours: Math.round(employee.weeklyHours * (period?.weeks ?? 1) * 10) / 10,
+          employmentType: this.getEmploymentType(employee.weeklyHours),
+          initials: this.getInitials(employee.name),
+          colorIndex: index % 3,
+        };
+      })
+      .filter((row): row is NonNullable<typeof row> => row !== null)
+      .sort((a, b) => b.share.amount - a.share.amount);
+  });
+
+  readonly payoutTotal = computed(() => this.payoutPeriod()?.carryOverIncluded ?? 0);
+  readonly payoutControlSum = computed(() => this.payoutPeriod()?.controlSum ?? 0);
+  readonly payoutRemainder = computed(() => this.payoutPeriod()?.remainder ?? 0);
+
+  readonly payoutDateRange = computed(() => {
+    const period = this.payoutPeriod();
+    if (!period) return '';
+    const start = format(new Date(period.startDate), 'dd. MMM', { locale: de });
+    const end = format(new Date(), 'dd. MMM yyyy', { locale: de });
+    return `${start} – ${end}`;
+  });
+
+  openPayoutSheet(): void {
+    const period = this.currentPeriod();
+    if (period) {
+      this.periodDetailStore.setPeriodId(period.id);
+      this.periodDetailStore.load();
+    }
+    this.expandedEmployeeId.set(null);
+    this.isPayoutSheetOpen.set(true);
+  }
+
+  closePayoutSheet(): void {
+    this.isPayoutSheetOpen.set(false);
+  }
+
+  togglePayoutEmployee(employeeId: string): void {
+    this.expandedEmployeeId.update(id => id === employeeId ? null : employeeId);
+  }
+
+  adjustSickWeeks(employeeId: string, share: PayoutShare, delta: number): void {
+    const next = Math.max(0, share.sickUnits + delta);
+    this.periodDetailStore.updateShare(employeeId, { sickUnits: next });
+  }
+
+  submitPayout(): void {
+    const period = this.currentPeriod();
+    if (!period) return;
+    const today = format(new Date(), 'yyyy-MM-dd');
+    this.periodsStore.closePeriod(period.id, today, today);
+    this.isPayoutSheetOpen.set(false);
+  }
+
+  // --- Shared Helpers ---
   formatDepositDate(dateIso: string): string {
     const d = new Date(dateIso);
     if (isToday(d)) {
@@ -138,5 +215,23 @@ export class DashboardComponent {
 
   formatCurrency(value: number): string {
     return value.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  formatHours(hours: number): string {
+    return hours.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  }
+
+  formatFactor(factor: number): string {
+    return factor.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
+  }
+
+  private getEmploymentType(weeklyHours: number): string {
+    if (weeklyHours >= 35) return 'Vollzeit';
+    if (weeklyHours >= 15) return 'Teilzeit';
+    return 'Aushilfe';
+  }
+
+  private getInitials(name: string): string {
+    return name.split(' ').slice(0, 2).map(p => p[0] ?? '').join('').toUpperCase();
   }
 }
