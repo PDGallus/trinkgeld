@@ -4,9 +4,6 @@
   "schedule": ["at any time"],
   "minimumReleaseAge": "3 days",
   "separateMajorMinor": true,
-  "platform": "github",
-  "repositories": [""],
-  "autodiscover": false,
   "packageRules": [
     {
       "description": "Group all Angular packages (patch + minor) into one PR",
