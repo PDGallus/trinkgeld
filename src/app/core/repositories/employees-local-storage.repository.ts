@@ -11,6 +11,10 @@ export class EmployeesLocalStorageRepository {
     return this.storage.getItem<Employee[]>(STORAGE_KEYS.employees) ?? [];
   }
 
+  hasInitialized(): boolean {
+    return this.storage.getItem<Employee[]>(STORAGE_KEYS.employees) !== null;
+  }
+
   saveAll(employees: Employee[]): void {
     this.storage.setItem(STORAGE_KEYS.employees, employees);
   }
