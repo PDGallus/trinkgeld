@@ -562,6 +562,7 @@
   border-radius: 1rem;
   border: none;
   cursor: pointer;
+  text-align: center;
   letter-spacing: 0.025em;
   box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 30%, transparent);
   transition: all 150ms ease;
