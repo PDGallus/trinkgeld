@@ -1,0 +1,47 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["at any time"],
+  "minimumReleaseAge": "3 days",
+  "separateMajorMinor": true,
+  "packageRules": [
+    {
+      "description": "Group all Angular packages (patch + minor) into one PR",
+      "matchPackagePrefixes": ["@angular/"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "Angular packages",
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Group all non-Angular patch updates into one PR",
+      "matchUpdateTypes": ["patch"],
+      "excludePackagePrefixes": ["@angular/"],
+      "groupName": "Patch updates",
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Group all non-Angular minor updates into one PR",
+      "matchUpdateTypes": ["minor"],
+      "excludePackagePrefixes": ["@angular/"],
+      "groupName": "Minor updates",
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Angular major: group Angular and all closely related packages into one PR",
+      "matchPackagePatterns": ["^@angular/", "^rxjs", "^tslib", "^typescript"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "Angular major update",
+      "groupSlug": "angular-major",
+      "automerge": false
+    },
+    {
+      "description": "All other major updates: individual PRs, no automerge",
+      "matchUpdateTypes": ["major"],
+      "excludePackagePatterns": ["^@angular/", "^rxjs", "^tslib", "^typescript"],
+      "automerge": false
+    }
+  ]
+}
