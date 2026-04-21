@@ -10,13 +10,13 @@ export class EmployeesStore {
   constructor(private readonly repository: EmployeesLocalStorageRepository) { }
 
   loadFromLocalStorage(): void {
-    const all = this.repository.getAll();
-    if (all.length === 0) {
+    if (!this.repository.hasInitialized()) {
       const seeded = defaultEmployees();
       this.repository.saveAll(seeded);
       this.employees.set(seeded);
       return;
     }
+    const all = this.repository.getAll();
     const normalized = this.normalizeKnownDataCorrection(all);
     this.employees.set(normalized);
   }
