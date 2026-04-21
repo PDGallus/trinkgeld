@@ -53,7 +53,7 @@
     }
 
     &:active {
-      background-color: var(--surface-container-high);
+      background-color: var(--surface-container-highest);
       transform: scale(0.95);
     }
   }
@@ -488,7 +488,7 @@
   transition: background-color 150ms ease, transform 100ms ease;
 
   &:active {
-    background-color: var(--surface-container-high);
+    background-color: var(--surface-container-highest);
     transform: scale(0.95);
   }
 
@@ -514,7 +514,7 @@
 
 .deposit-summary-card {
   background-color: var(--surface-container-low);
-  border: 1px solid var(--surface-container);
+  border: 1px solid var(--surface-container-low);
   border-radius: 1rem;
   padding: 1rem 1.5rem;
   display: flex;
@@ -558,11 +558,9 @@
   font-size: 1.125rem;
   font-weight: 700;
   font-family: inherit;
-  padding: 1.25rem;
-  border-radius: 1rem;
+  border-radius: 2rem;
   border: none;
   cursor: pointer;
-  text-align: center;
   letter-spacing: 0.025em;
   box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 30%, transparent);
   transition: all 150ms ease;
@@ -670,7 +668,7 @@
   border-radius: 1rem;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(46, 51, 58, 0.05);
-  border: 1px solid color-mix(in srgb, var(--surface-container) 50%, transparent);
+  border: 1px solid color-mix(in srgb, var(--surface-container-low) 50%, transparent);
   transition: box-shadow 150ms ease;
 
   &.payout-employee-card--expanded {
@@ -692,7 +690,7 @@
   }
 
   &:active {
-    background-color: var(--surface-container);
+    background-color: var(--surface-container-highest);
   }
 }
 
@@ -712,21 +710,6 @@
   font-weight: 700;
   font-size: 0.875rem;
   flex-shrink: 0;
-
-  &.payout-avatar--0 {
-    background-color: var(--primary-container);
-    color: var(--on-primary-container);
-  }
-
-  &.payout-avatar--1 {
-    background-color: var(--secondary-container);
-    color: var(--on-secondary-container);
-  }
-
-  &.payout-avatar--2 {
-    background-color: color-mix(in srgb, var(--tertiary-container) 40%, transparent);
-    color: var(--on-tertiary-container);
-  }
 }
 
 .payout-card-name {
@@ -848,7 +831,7 @@
   transition: background-color 150ms ease, transform 100ms ease;
 
   &:hover {
-    background-color: var(--surface-container-high);
+    background-color: var(--surface-container-highest);
   }
 
   &:active {
@@ -920,7 +903,7 @@
 
 /* Totals */
 .payout-totals {
-  background-color: var(--surface-container-high);
+  background-color: var(--surface-container-low);
   border-radius: 1rem;
   padding: 1.25rem 1.5rem;
   display: flex;
@@ -964,7 +947,7 @@
   font-weight: 700;
   font-family: inherit;
   padding: 1.25rem;
-  border-radius: 1rem;
+  border-radius: 2rem;
   border: none;
   cursor: pointer;
   display: flex;

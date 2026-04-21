@@ -240,7 +240,6 @@
                (keydown.enter)="togglePayoutEmployee(row.employee.id)"
                (keydown.space)="togglePayoutEmployee(row.employee.id)">
             <div class="payout-card-employee">
-              <div class="payout-avatar payout-avatar--{{ row.colorIndex }}">{{ row.initials }}</div>
               <div>
                 <p class="payout-card-name">{{ row.employee.name }}</p>
                 <p class="payout-card-meta">{{ row.employmentType }} · {{ row.employee.weeklyHours }}h/Woche</p>
