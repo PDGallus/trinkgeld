@@ -22,3 +22,4 @@ jobs:
       - uses: renovatebot/github-action@v46.1.10
         env:
           RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
+          RENOVATE_AUTODISCOVER: true
