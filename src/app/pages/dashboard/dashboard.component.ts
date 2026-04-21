@@ -139,7 +139,7 @@ export class DashboardComponent {
         };
       })
       .filter((row): row is NonNullable<typeof row> => row !== null)
-      .sort((a, b) => b.share.amount - a.share.amount);
+      .sort((a, b) => b.employee.weeklyHours - a.employee.weeklyHours);
   });
 
   readonly payoutTotal = computed(() => this.payoutPeriod()?.carryOverIncluded ?? 0);
