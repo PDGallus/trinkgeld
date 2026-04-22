@@ -1028,6 +1028,10 @@
       font-weight: 900;
       color: var(--on-surface);
       margin: 0;
+
+      &.deposit-amount--negative {
+        color: var(--error);
+      }
     }
   }
 }
