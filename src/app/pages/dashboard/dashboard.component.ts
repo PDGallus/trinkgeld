@@ -6,7 +6,7 @@ import { PeriodDetailStore } from '../../core/stores/period-detail.store';
 import { TipDepositsLocalStorageRepository } from '../../core/repositories/tip-deposits-local-storage.repository';
 import { ActionSheetComponent } from '../../shared/components/action-sheet/action-sheet.component';
 import { BackupService } from '../../core/services/backup.service';
-import { PayoutShare } from '../../core/models';
+import { PayoutShare, TipDeposit } from '../../core/models';
 import { format, isToday, isYesterday } from 'date-fns';
 import { de } from 'date-fns/locale';
 
@@ -184,6 +184,13 @@ export class DashboardComponent {
   }
 
   // --- Shared Helpers ---
+  getDepositLabel(deposit: TipDeposit): string {
+    if (deposit.description) return deposit.description;
+    if (deposit.id.includes('-employee-exit-')) return 'Austrittszahlung';
+    if (deposit.id.includes('-delete-')) return 'Einzahlung storniert';
+    return 'Barzahlung';
+  }
+
   formatDepositDate(dateIso: string): string {
     const d = new Date(dateIso);
     if (isToday(d)) {

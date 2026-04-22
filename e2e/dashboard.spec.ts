@@ -177,10 +177,35 @@ test.describe('Dashboard', () => {
     await expect(sheet.locator('.payout-no-period')).toBeVisible();
   });
 
+  // ── Exit payments ─────────────────────────────────────────────────────────
+
+  test('exit payment shows description and negative amount', async ({ page }) => {
+    await seedDeposits(page, [
+      { id: 'dep-1', periodId: 'period-open', amount: 150, date: START_DATE, description: 'Montag' },
+      { id: 'dep-exit', periodId: 'period-open', amount: -75, date: START_DATE, description: 'Austritt Max Mustermann' },
+    ]);
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+
+    const exitEntry = page.locator('.deposit-entry').filter({ hasText: 'Austritt Max Mustermann' });
+    await expect(exitEntry.locator('.deposit-type')).toHaveText('Austritt Max Mustermann');
+    await expect(exitEntry.locator('.deposit-amount')).toContainText('-75,00');
+  });
+
   // ── Snapshots ─────────────────────────────────────────────────────────────
 
   test('snapshot: dashboard with deposits', async ({ page }) => {
     await expect(page).toHaveScreenshot('dashboard-with-deposits.png');
+  });
+
+  test('snapshot: dashboard with exit payment', async ({ page }) => {
+    await seedDeposits(page, [
+      { id: 'dep-1', periodId: 'period-open', amount: 150, date: START_DATE, description: 'Montag' },
+      { id: 'dep-exit', periodId: 'period-open', amount: -75, date: START_DATE, description: 'Austritt Max Mustermann' },
+    ]);
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    await expect(page).toHaveScreenshot('dashboard-with-exit-payment.png');
   });
 
   test('snapshot: deposit sheet open', async ({ page }) => {
