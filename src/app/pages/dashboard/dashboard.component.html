@@ -108,17 +108,17 @@
     </div>
   </section>
 
-  <!-- Letzte Einzahlungen -->
+  <!-- Letzte Buchungen -->
   <section class="dashboard-section">
     <div class="section-header">
-      <h2 class="section-title">Letzte Einzahlungen</h2>
+      <h2 class="section-title">Letzte Buchungen</h2>
        <button class="text-button">Alle sehen</button>
     </div>
 
     <div class="deposits-list">
       @if (recentDeposits().length === 0) {
         <div class="deposit-entry" style="justify-content: center;">
-          <p class="deposit-time" style="color: var(--on-surface-variant); font-weight: 500;">Noch keine Einzahlungen in dieser Periode.</p>
+          <p class="deposit-time" style="color: var(--on-surface-variant); font-weight: 500;">Noch keine Buchungen in dieser Periode.</p>
         </div>
       }
 
@@ -126,14 +126,14 @@
         <div class="deposit-entry">
           <div class="deposit-info">
             <div class="deposit-icon-wrapper">
-              <span class="material-symbols-outlined" data-icon="payments">payments</span>
+              <span class="material-symbols-outlined" [attr.data-icon]="deposit.amount < 0 ? 'person_remove' : 'payments'">{{ deposit.amount < 0 ? 'person_remove' : 'payments' }}</span>
             </div>
             <div>
               <p class="deposit-time">{{ formatDepositDate(deposit.createdAt) }}</p>
               <p class="deposit-type">{{ deposit.description || 'Barzahlung' }}</p>
             </div>
           </div>
-          <p class="deposit-amount">+{{ formatCurrency(deposit.amount) }} €</p>
+          <p class="deposit-amount" [class.deposit-amount--negative]="deposit.amount < 0">{{ deposit.amount > 0 ? '+' : '' }}{{ formatCurrency(deposit.amount) }} €</p>
         </div>
       }
     </div>

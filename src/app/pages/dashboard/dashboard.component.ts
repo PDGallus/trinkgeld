@@ -57,9 +57,7 @@ export class DashboardComponent {
     const period = this.currentPeriod();
     if (!period) return [];
     const deposits = this.depositsRepo.getByPeriodId(period.id);
-    return deposits
-      .filter(d => d.amount > 0)
-      .slice(0, 3);
+    return deposits.slice(0, 5);
   });
 
   // --- Deposit Action Sheet ---

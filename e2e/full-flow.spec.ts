@@ -142,7 +142,7 @@ test.describe('Full user flow', () => {
     await expect(sheetOpen(detailSheet)).not.toBeVisible();
 
     // ── Snapshot: archiv with one closed period ────────────────────────────
-    await expect(page).toHaveScreenshot('archiv-one-period.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('archiv-one-period.png');
   });
 
   // ── Edge cases ─────────────────────────────────────────────────────────────
@@ -271,13 +271,13 @@ test.describe('Archiv with seeded data', () => {
   });
 
   test('snapshot: archiv with closed period', async ({ page }) => {
-    await expect(page).toHaveScreenshot('archiv-closed-period.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('archiv-closed-period.png');
   });
 
   test('snapshot: archiv detail sheet', async ({ page }) => {
     await page.locator('.period-card').tap();
     // Wait for detail content to be on-screen before snapping
     await expect(page.locator('.detail-summary-card')).toBeVisible();
-    await expect(page).toHaveScreenshot('archiv-detail-sheet.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('archiv-detail-sheet.png');
   });
 });

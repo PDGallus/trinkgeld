@@ -180,19 +180,19 @@ test.describe('Dashboard', () => {
   // ── Snapshots ─────────────────────────────────────────────────────────────
 
   test('snapshot: dashboard with deposits', async ({ page }) => {
-    await expect(page).toHaveScreenshot('dashboard-with-deposits.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('dashboard-with-deposits.png');
   });
 
   test('snapshot: deposit sheet open', async ({ page }) => {
     await page.locator('.action-card', { hasText: 'Trinkgeld einzahlen' }).tap();
     // Wait for numpad to be on-screen before snapping
     await expect(page.locator('.numpad-grid')).toBeVisible();
-    await expect(page).toHaveScreenshot('dashboard-deposit-sheet.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('dashboard-deposit-sheet.png');
   });
 
   test('snapshot: payout sheet open', async ({ page }) => {
     await page.locator('.action-card', { hasText: 'Auszahlung vorbereiten' }).tap();
     await expect(page.locator('.payout-total-amount')).toBeVisible();
-    await expect(page).toHaveScreenshot('dashboard-payout-sheet.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('dashboard-payout-sheet.png');
   });
 });
