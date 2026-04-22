@@ -130,7 +130,7 @@
             </div>
             <div>
               <p class="deposit-time">{{ formatDepositDate(deposit.createdAt) }}</p>
-              <p class="deposit-type">{{ deposit.description || 'Barzahlung' }}</p>
+              <p class="deposit-type">{{ getDepositLabel(deposit) }}</p>
             </div>
           </div>
           <p class="deposit-amount" [class.deposit-amount--negative]="deposit.amount < 0">{{ deposit.amount > 0 ? '+' : '' }}{{ formatCurrency(deposit.amount) }} €</p>
