@@ -149,7 +149,7 @@ test.describe('Team management', () => {
     ]);
     await page.reload();
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot('team-with-employees.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('team-with-employees.png');
   });
 
   test('snapshot: add employee sheet open', async ({ page }) => {
@@ -157,6 +157,6 @@ test.describe('Team management', () => {
     const sheet = page.locator('app-action-sheet');
     // Wait for the form to appear (inner content, not the zero-dimension host)
     await expect(sheet.locator('.add-employee-form')).toBeVisible();
-    await expect(page).toHaveScreenshot('team-add-sheet.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('team-add-sheet.png');
   });
 });

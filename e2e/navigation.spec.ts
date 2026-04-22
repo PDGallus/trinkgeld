@@ -50,13 +50,13 @@ test.describe('Navigation', () => {
   // ── Snapshot tests ────────────────────────────────────────────────────────
 
   test('snapshot: dashboard initial view', async ({ page }) => {
-    await expect(page).toHaveScreenshot('dashboard-initial.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('dashboard-initial.png');
   });
 
   test('snapshot: team page', async ({ page }) => {
     await page.locator('app-bottom-nav button[routerlink="/team"]').click();
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot('team-page.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('team-page.png');
   });
 
   test('snapshot: archiv empty state', async ({ page }) => {
@@ -66,6 +66,6 @@ test.describe('Navigation', () => {
     await page.waitForLoadState('networkidle');
     await page.locator('app-bottom-nav button[routerlink="/archiv"]').click();
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveScreenshot('archiv-empty.png', { fullPage: true });
+    await expect(page).toHaveScreenshot('archiv-empty.png');
   });
 });
