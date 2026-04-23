@@ -4,7 +4,6 @@
   "schedule": ["at any time"],
   "minimumReleaseAge": "3 days",
   "separateMajorMinor": true,
-  "gitAuthor": "Philip Hahn <philip.d.hahn@gmail.com>",
   "rebaseWhen": "always",
   "packageRules": [
     {
