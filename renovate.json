@@ -5,6 +5,8 @@
   "minimumReleaseAge": "3 days",
   "separateMajorMinor": true,
   "rebaseWhen": "always",
+  "pruneBranchAfterAutomerge": true,
+  "ignoreUnstable": false,
   "packageRules": [
     {
       "description": "Group all Angular packages (patch + minor) into one PR",
