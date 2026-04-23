@@ -1,10 +1,14 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
+  "onboarding": false,
   "schedule": ["at any time"],
   "minimumReleaseAge": "3 days",
   "separateMajorMinor": true,
-  "rebaseWhen": "always",
+  "ignorePatterns": [
+    { "pattern": "renovate/*" },
+    { "pattern": "renovate/[^/]*$" },
+  ],
   "pruneBranchAfterAutomerge": true,
   "ignoreUnstable": false,
   "packageRules": [
