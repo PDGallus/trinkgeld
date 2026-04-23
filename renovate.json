@@ -1,7 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "onboarding": false,
+  "onboarding": true,
+  "onboardingConfig": {
+    "extends": ["config:recommended"]
+  },
+  "onboardingBranch": "renovate/configure",
   "schedule": ["at any time"],
   "minimumReleaseAge": "3 days",
   "separateMajorMinor": true,
