@@ -23,4 +23,4 @@ jobs:
         env:
           RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
           RENOVATE_REPOSITORIES: '["PDGallus/trinkgeld"]'
-          RENOVATE_GIT_AUTHOR: "Philip Hahn <philip.d.hahn@gmail.com>"
+          RENOVATE_GIT_AUTHOR: "Renovate Bot <APP_SLUG@3457897+noreply-guser.ghe.noreply.github.com>"
