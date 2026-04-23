@@ -7,7 +7,7 @@
   "separateMajorMinor": true,
   "ignorePatterns": [
     { "pattern": "renovate/*" },
-    { "pattern": "renovate/[^/]*$" },
+    { "pattern": "renovate/[^/]*$" }
   ],
   "pruneBranchAfterAutomerge": true,
   "ignoreUnstable": false,
