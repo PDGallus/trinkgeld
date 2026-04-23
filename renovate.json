@@ -9,10 +9,6 @@
   "schedule": ["at any time"],
   "minimumReleaseAge": "3 days",
   "separateMajorMinor": true,
-  "ignorePatterns": [
-    { "pattern": "renovate/*" },
-    { "pattern": "renovate/[^/]*$" }
-  ],
   "pruneBranchAfterAutomerge": true,
   "ignoreUnstable": false,
   "packageRules": [
