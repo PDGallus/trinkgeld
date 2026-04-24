@@ -7,6 +7,7 @@
   "separateMajorMinor": true,
   "pruneBranchAfterAutomerge": true,
   "ignoreUnstable": false,
+  "platformAutomerge": true,
   "packageRules": [
     {
       "description": "Group all Angular packages (patch + minor) into one PR",
