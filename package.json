@@ -14,7 +14,7 @@
     "test:e2e:report": "playwright show-report"
   },
   "private": true,
-  "packageManager": "npm@11.9.0",
+  "packageManager": "npm@11.13.0",
   "dependencies": {
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
